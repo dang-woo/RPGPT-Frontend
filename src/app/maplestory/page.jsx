@@ -5,7 +5,9 @@ import axios from "axios";
 
 export default function Page() {
   const [characterName, setCharacterName] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchMode, setSearchMode] = useState("character"); // 검색 모드: "character" 또는 "group"
+  const [searchResults, setSearchResults] = useState([]); // 캐릭터 검색 결과
+  const [groupResults, setGroupResults] = useState([]); // 본캐 그룹 조회 결과
   const [selectedCharacter, setSelectedCharacter] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -23,17 +25,33 @@ export default function Page() {
     setLoading(true);
     setError(null);
     setSearchResults([]);
+    setGroupResults([]);
 
     try {
-      const response = await axios.get("http://localhost:8080/api/maple/search", {
-        params: { name: characterName },
-      });
+      if (searchMode === "character") {
+        // 캐릭터 이름으로 검색
+        const response = await axios.get("http://localhost:8080/api/maple/search", {
+          params: { name: characterName },
+        });
 
-      const results = response.data && response.data.ocid ? [response.data] : [];
-      if (results.length === 0) {
-        setError("일치하는 캐릭터가 없습니다.");
+        const results = response.data && response.data.ocid ? [response.data] : [];
+        if (results.length === 0) {
+          setError("일치하는 캐릭터가 없습니다.");
+        } else {
+          setSearchResults(results);
+        }
       } else {
-        setSearchResults(results);
+        // 본캐 이름으로 그룹 조회
+        const response = await axios.get("http://localhost:8080/api/maple/group", {
+          params: { representativeName: characterName },
+        });
+
+        const results = response.data || [];
+        if (results.length === 0) {
+          setError("해당 본캐 이름으로 등록된 캐릭터가 없습니다.");
+        } else {
+          setGroupResults(results);
+        }
       }
     } catch (err) {
       setError("검색 중 오류가 발생했습니다: " + err.message);
@@ -76,34 +94,60 @@ export default function Page() {
         <h1 className="text-3xl font-bold mb-6">메이플스토리 캐릭터 조회</h1>
 
         {/* 검색 폼 */}
-        <form onSubmit={handleSearch} className="mb-8 flex flex-col sm:flex-row gap-4">
-          <input
-              type="text"
-              placeholder="캐릭터 이름 입력"
-              value={characterName}
-              onChange={(e) => setCharacterName(e.target.value)}
-              className="h-10 rounded-md border px-3 text-sm navigation-search"
-          />
-          <button
-              type="submit"
-              disabled={loading}
-              className="h-10 rounded-md bg-gray-800 text-white px-4 hover:bg-gray-700 transition-colors"
-          >
-            {loading ? "검색 중..." : "검색"}
-          </button>
+        <form onSubmit={handleSearch} className="mb-8 flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex items-center gap-4">
+              <label className="flex items-center">
+                <input
+                    type="radio"
+                    name="searchMode"
+                    value="character"
+                    checked={searchMode === "character"}
+                    onChange={() => setSearchMode("character")}
+                    className="mr-2"
+                />
+                캐릭터 이름으로 검색
+              </label>
+              <label className="flex items-center">
+                <input
+                    type="radio"
+                    name="searchMode"
+                    value="group"
+                    checked={searchMode === "group"}
+                    onChange={() => setSearchMode("group")}
+                    className="mr-2"
+                />
+                본캐 이름으로 검색
+              </label>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <input
+                type="text"
+                placeholder={searchMode === "character" ? "캐릭터 이름 입력" : "본캐 이름 입력"}
+                value={characterName}
+                onChange={(e) => setCharacterName(e.target.value)}
+                className="h-10 rounded-md border px-3 text-sm navigation-search"
+            />
+            <button
+                type="submit"
+                disabled={loading}
+                className="h-10 rounded-md bg-gray-800 text-white px-4 hover:bg-gray-700 transition-colors"
+            >
+              {loading ? "검색 중..." : "검색"}
+            </button>
+          </div>
         </form>
 
         {/* 에러 메시지 */}
         {error && (
-            <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
-              {error}
-            </div>
+            <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">{error}</div>
         )}
 
-        {/* 검색 결과 */}
+        {/* 캐릭터 검색 결과 */}
         {searchResults.length > 0 && (
             <div className="grid gap-4">
-              <h2 className="text-xl font-semibold">검색 결과</h2>
+              <h2 className="text-xl font-semibold">캐릭터 검색 결과</h2>
               <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {searchResults.map((character) => (
                     <li
@@ -126,6 +170,39 @@ export default function Page() {
                       </p>
                       <p className="text-base">
                         <strong>레벨:</strong> {character.characterLevel}
+                      </p>
+                      <p className="text-base">
+                        <strong>직업:</strong> {character.characterClass}
+                      </p>
+                    </li>
+                ))}
+              </ul>
+            </div>
+        )}
+
+        {/* 본캐 기준 계정 내 캐릭터 목록 */}
+        {groupResults.length > 0 && (
+            <div className="grid gap-4 mt-8">
+              <h2 className="text-xl font-semibold">계정 내 캐릭터 목록 (본캐: {characterName})</h2>
+              <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {groupResults.map((character) => (
+                    <li
+                        key={character.ocid}
+                        className="border rounded-md p-4 bg-white shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                        onClick={() => handleShowDetails(character.ocid)}
+                    >
+                      <div className="relative aspect-square max-h-64 overflow-hidden rounded-md mb-4">
+                        <img
+                            src="https://via.placeholder.com/150?text=No+Image"
+                            alt={character.characterName}
+                            className="w-full h-full object-contain"
+                        />
+                      </div>
+                      <p className="text-base">
+                        <strong>이름:</strong> {character.characterName}
+                      </p>
+                      <p className="text-base">
+                        <strong>월드:</strong> {character.worldName}
                       </p>
                       <p className="text-base">
                         <strong>직업:</strong> {character.characterClass}
