@@ -152,28 +152,33 @@ export default function Page() {
                 {searchResults.map((character) => (
                     <li
                         key={character.ocid}
-                        className="border rounded-md p-4 bg-white shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                        className="border rounded-lg p-6 bg-white shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
                         onClick={() => handleShowDetails(character.ocid)}
                     >
-                      <div className="relative aspect-square max-h-64 overflow-hidden rounded-md mb-4">
-                        <img
-                            src={character.characterImage}
-                            alt={character.characterName}
-                            className="w-full h-full object-contain"
-                        />
-                      </div>
-                      <p className="text-base">
-                        <strong>이름:</strong> {character.characterName}
-                      </p>
-                      <p className="text-base">
-                        <strong>월드:</strong> {character.worldName}
-                      </p>
-                      <p className="text-base">
-                        <strong>레벨:</strong> {character.characterLevel}
-                      </p>
-                      <p className="text-base">
-                        <strong>직업:</strong> {character.characterClass}
-                      </p>
+                        <div className="relative aspect-square max-h-64 overflow-hidden rounded-lg mb-4 bg-gray-50">
+                            <img
+                                src={character.characterImage}
+                                alt={character.characterName}
+                                className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <h3 className="text-xl font-bold text-gray-800 truncate">
+                                {character.characterName}
+                            </h3>
+                            <div className="flex items-center text-gray-600">
+                                <span className="w-20 font-medium">월드</span>
+                                <span className="text-gray-800">{character.worldName}</span>
+                            </div>
+                            <div className="flex items-center text-gray-600">
+                                <span className="w-20 font-medium">레벨</span>
+                                <span className="text-gray-800">{character.characterLevel}</span>
+                            </div>
+                            <div className="flex items-center text-gray-600">
+                                <span className="w-20 font-medium">직업</span>
+                                <span className="text-gray-800">{character.characterClass}</span>
+                            </div>
+                        </div>
                     </li>
                 ))}
               </ul>
@@ -215,55 +220,69 @@ export default function Page() {
 
         {/* 상세 정보 모달 */}
         {selectedCharacter && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 navigation-overlay">
-              <div className="bg-white rounded-lg p-6 max-w-lg w-full mx-4">
-                {modalLoading ? (
-                    <div className="text-center">로딩 중...</div>
-                ) : modalError ? (
-                    <div className="text-red-700">{modalError}</div>
-                ) : (
-                    <>
-                      <h2 className="text-2xl font-bold mb-4">{selectedCharacter.character_name}</h2>
-                      <div className="relative aspect-square max-h-48 overflow-hidden rounded-md mb-4">
-                        <img
-                            src={selectedCharacter.character_image}
-                            alt={selectedCharacter.character_name}
-                            className="w-full h-full object-contain"
-                        />
-                      </div>
-                      <p>
-                        <strong>월드:</strong> {selectedCharacter.world_name}
-                      </p>
-                      <p>
-                        <strong>레벨:</strong> {selectedCharacter.character_level}
-                      </p>
-                      <p>
-                        <strong>직업:</strong> {selectedCharacter.character_class} (레벨 {selectedCharacter.character_class_level})
-                      </p>
-                      <p>
-                        <strong>성별:</strong> {selectedCharacter.character_gender}
-                      </p>
-                      <p>
-                        <strong>경험치:</strong> {selectedCharacter.character_exp} ({selectedCharacter.character_exp_rate}%)
-                      </p>
-                      <p>
-                        <strong>길드:</strong> {selectedCharacter.character_guild_name || "없음"}
-                      </p>
-                      <p>
-                        <strong>캐릭터 생성일:</strong> {selectedCharacter.character_date_create}
-                      </p>
-                      <p>
-                        <strong>계정 ID:</strong> {selectedCharacter.accountId || "없음"}
-                      </p>
-                      <button
-                          onClick={closeModal}
-                          className="mt-4 w-full h-10 rounded-md bg-gray-800 text-white hover:bg-gray-700 transition-colors"
-                      >
-                        닫기
-                      </button>
-                    </>
-                )}
-              </div>
+            <div 
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 navigation-overlay"
+                onClick={closeModal}
+            >
+                <div 
+                    className="bg-white rounded-lg p-6 max-w-lg w-full mx-4 relative"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <button
+                        onClick={closeModal}
+                        className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                    {modalLoading ? (
+                        <div className="text-center">로딩 중...</div>
+                    ) : modalError ? (
+                        <div className="text-red-700">{modalError}</div>
+                    ) : (
+                        <>
+                          <h2 className="text-2xl font-bold mb-4">{selectedCharacter.character_name}</h2>
+                          <div className="relative aspect-square max-h-48 overflow-hidden rounded-md mb-4">
+                            <img
+                                src={selectedCharacter.character_image}
+                                alt={selectedCharacter.character_name}
+                                className="w-full h-full object-contain"
+                            />
+                          </div>
+                          <p>
+                            <strong>월드:</strong> {selectedCharacter.world_name}
+                          </p>
+                          <p>
+                            <strong>레벨:</strong> {selectedCharacter.character_level}
+                          </p>
+                          <p>
+                            <strong>직업:</strong> {selectedCharacter.character_class} (레벨 {selectedCharacter.character_class_level})
+                          </p>
+                          <p>
+                            <strong>성별:</strong> {selectedCharacter.character_gender}
+                          </p>
+                          <p>
+                            <strong>경험치:</strong> {selectedCharacter.character_exp} ({selectedCharacter.character_exp_rate}%)
+                          </p>
+                          <p>
+                            <strong>길드:</strong> {selectedCharacter.character_guild_name || "없음"}
+                          </p>
+                          <p>
+                            <strong>캐릭터 생성일:</strong> {selectedCharacter.character_date_create}
+                          </p>
+                          <p>
+                            <strong>계정 ID:</strong> {selectedCharacter.accountId || "없음"}
+                          </p>
+                          <button
+                              onClick={closeModal}
+                              className="mt-4 w-full h-10 rounded-md bg-gray-800 text-white hover:bg-gray-700 transition-colors"
+                          >
+                            닫기
+                          </button>
+                        </>
+                    )}
+                </div>
             </div>
         )}
       </div>

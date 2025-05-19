@@ -46,7 +46,12 @@ export default function Page() {
                 },
             });
 
-            let results = response.data ? [response.data] : [];
+            // 응답 데이터가 유효한지 확인
+            let results = [];
+            if (response.data && response.data.ArmoryProfile && response.data.ArmoryProfile.CharacterName) {
+                results = [response.data];
+            }
+
             // 아이템 레벨 필터링
             results = results.filter((char) => {
                 const itemLevel = parseFloat(char.ArmoryProfile?.ItemAvgLevel?.replace(",", "") || 0);
@@ -78,7 +83,7 @@ export default function Page() {
                 params: { characterName },
             });
 
-            if (response.data) {
+            if (response.data && response.data.ArmoryProfile && response.data.ArmoryProfile.CharacterName) {
                 setSelectedCharacter(response.data);
                 setActiveTab("profile");
             } else {
@@ -166,33 +171,39 @@ export default function Page() {
                     <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {searchResults.map((character) => (
                             <li
-                                key={character.ArmoryProfile?.CharacterName || Math.random()}
-                                className="border rounded-md p-4 bg-white shadow-sm cursor-pointer hover:shadow-md transition-shadow"
-                                onClick={() => handleShowDetails(character.ArmoryProfile?.CharacterName)}
+                                key={character.ArmoryProfile.CharacterName}
+                                className="border rounded-lg p-6 bg-white shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
+                                onClick={() => handleShowDetails(character.ArmoryProfile.CharacterName)}
                             >
-                                <div className="relative aspect-square max-h-64 overflow-hidden rounded-md mb-4">
+                                <div className="relative aspect-square max-h-64 overflow-hidden rounded-lg mb-4 bg-gray-50">
                                     <img
-                                        src={character.ArmoryProfile?.CharacterImage || fallbackImage}
-                                        alt={character.ArmoryProfile?.CharacterName || "캐릭터"}
-                                        className="w-full h-full object-contain"
+                                        src={character.ArmoryProfile.CharacterImage || fallbackImage}
+                                        alt={character.ArmoryProfile.CharacterName}
+                                        className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
                                         onError={(e) => (e.target.src = fallbackImage)}
                                     />
                                 </div>
-                                <p className="text-base">
-                                    <strong>이름:</strong> {character.ArmoryProfile?.CharacterName || "없음"}
-                                </p>
-                                <p className="text-base">
-                                    <strong>서버:</strong> {character.ArmoryProfile?.ServerName || "없음"}
-                                </p>
-                                <p className="text-base">
-                                    <strong>레벨:</strong> {character.ArmoryProfile?.CharacterLevel || "없음"}
-                                </p>
-                                <p className="text-base">
-                                    <strong>직업:</strong> {character.ArmoryProfile?.CharacterClassName || "없음"}
-                                </p>
-                                <p className="text-base">
-                                    <strong>아이템 레벨:</strong> {character.ArmoryProfile?.ItemAvgLevel || "없음"}
-                                </p>
+                                <div className="space-y-2">
+                                    <h3 className="text-xl font-bold text-gray-800 truncate">
+                                        {character.ArmoryProfile.CharacterName}
+                                    </h3>
+                                    <div className="flex items-center text-gray-600">
+                                        <span className="w-20 font-medium">서버</span>
+                                        <span className="text-gray-800">{character.ArmoryProfile.ServerName}</span>
+                                    </div>
+                                    <div className="flex items-center text-gray-600">
+                                        <span className="w-20 font-medium">레벨</span>
+                                        <span className="text-gray-800">{character.ArmoryProfile.CharacterLevel}</span>
+                                    </div>
+                                    <div className="flex items-center text-gray-600">
+                                        <span className="w-20 font-medium">직업</span>
+                                        <span className="text-gray-800">{character.ArmoryProfile.CharacterClassName}</span>
+                                    </div>
+                                    <div className="flex items-center text-gray-600">
+                                        <span className="w-20 font-medium">아이템</span>
+                                        <span className="text-gray-800">{character.ArmoryProfile.ItemAvgLevel}</span>
+                                    </div>
+                                </div>
                             </li>
                         ))}
                     </ul>
@@ -201,26 +212,36 @@ export default function Page() {
 
             {/* 상세 정보 모달 */}
             {selectedCharacter && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 navigation-overlay">
-                    <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 navigation-overlay"
+                    onClick={closeModal}
+                >
+                    <div
+                        className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto relative"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button
+                            onClick={closeModal}
+                            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
                         {modalLoading ? (
                             <div className="text-center">로딩 중...</div>
                         ) : modalError ? (
                             <div className="text-red-700">{modalError}</div>
                         ) : (
                             <>
-                                <h2 className="text-2xl font-bold mb-4">
-                                    {selectedCharacter.ArmoryProfile?.CharacterName || "알 수 없는 캐릭터"}
-                                </h2>
+                                <h2 className="text-2xl font-bold mb-4">{selectedCharacter.ArmoryProfile.CharacterName}</h2>
 
                                 {/* 탭 네비게이션 */}
                                 <div className="flex border-b mb-4">
                                     {["profile", "stats", "tendencies", "equipment", "collectibles"].map((tab) => (
                                         <button
                                             key={tab}
-                                            className={`px-4 py-2 ${
-                                                activeTab === tab ? "border-b-2 border-gray-800 font-semibold" : ""
-                                            }`}
+                                            className={`px-4 py-2 ${activeTab === tab ? "border-b-2 border-gray-800 font-semibold" : ""}`}
                                             onClick={() => setActiveTab(tab)}
                                         >
                                             {tab === "profile"
@@ -241,57 +262,46 @@ export default function Page() {
                                     <div>
                                         <div className="relative aspect-square max-h-48 overflow-hidden rounded-md mb-4">
                                             <img
-                                                src={
-                                                    selectedCharacter.ArmoryProfile?.CharacterImage || fallbackImage
-                                                }
-                                                alt={selectedCharacter.ArmoryProfile?.CharacterName || "캐릭터"}
+                                                src={selectedCharacter.ArmoryProfile.CharacterImage || fallbackImage}
+                                                alt={selectedCharacter.ArmoryProfile.CharacterName}
                                                 className="w-full h-full object-contain"
                                                 onError={(e) => (e.target.src = fallbackImage)}
                                             />
                                         </div>
                                         <p>
-                                            <strong>서버:</strong> {selectedCharacter.ArmoryProfile?.ServerName || "없음"}
+                                            <strong>서버:</strong> {selectedCharacter.ArmoryProfile.ServerName}
                                         </p>
                                         <p>
-                                            <strong>레벨:</strong> {selectedCharacter.ArmoryProfile?.CharacterLevel || "없음"}
+                                            <strong>레벨:</strong> {selectedCharacter.ArmoryProfile.CharacterLevel}
                                         </p>
                                         <p>
-                                            <strong>직업:</strong>{" "}
-                                            {selectedCharacter.ArmoryProfile?.CharacterClassName || "없음"}
+                                            <strong>직업:</strong> {selectedCharacter.ArmoryProfile.CharacterClassName}
                                         </p>
                                         <p>
-                                            <strong>아이템 레벨:</strong>{" "}
-                                            {selectedCharacter.ArmoryProfile?.ItemAvgLevel || "없음"}
+                                            <strong>아이템 레벨:</strong> {selectedCharacter.ArmoryProfile.ItemAvgLevel}
                                         </p>
                                         <p>
-                                            <strong>원정대 레벨:</strong>{" "}
-                                            {selectedCharacter.ArmoryProfile?.ExpeditionLevel || "없음"}
+                                            <strong>원정대 레벨:</strong> {selectedCharacter.ArmoryProfile.ExpeditionLevel}
                                         </p>
                                         <p>
-                                            <strong>PvP 등급:</strong>{" "}
-                                            {selectedCharacter.ArmoryProfile?.PvpGradeName || "없음"}
+                                            <strong>PvP 등급:</strong> {selectedCharacter.ArmoryProfile.PvpGradeName || "없음"}
                                         </p>
                                         <p>
-                                            <strong>마을 레벨:</strong>{" "}
-                                            {selectedCharacter.ArmoryProfile?.TownLevel || "없음"}
+                                            <strong>마을 레벨:</strong> {selectedCharacter.ArmoryProfile.TownLevel}
                                         </p>
                                         <p>
-                                            <strong>마을 이름:</strong>{" "}
-                                            {selectedCharacter.ArmoryProfile?.TownName || "없음"}
+                                            <strong>마을 이름:</strong> {selectedCharacter.ArmoryProfile.TownName || "없음"}
                                         </p>
                                         <p>
-                                            <strong>타이틀:</strong>{" "}
-                                            {selectedCharacter.ArmoryProfile?.Title || "없음"}
+                                            <strong>타이틀:</strong> {selectedCharacter.ArmoryProfile.Title || "없음"}
                                         </p>
                                         <p>
-                                            <strong>길드:</strong>{" "}
-                                            {selectedCharacter.ArmoryProfile?.GuildName || "없음"} (
-                                            {selectedCharacter.ArmoryProfile?.GuildMemberGrade || "없음"})
+                                            <strong>길드:</strong> {selectedCharacter.ArmoryProfile.GuildName || "없음"} (
+                                            {selectedCharacter.ArmoryProfile.GuildMemberGrade || "없음"})
                                         </p>
                                         <p>
-                                            <strong>스킬 포인트:</strong>{" "}
-                                            {selectedCharacter.ArmoryProfile?.UsingSkillPoint || "0"} /{" "}
-                                            {selectedCharacter.ArmoryProfile?.TotalSkillPoint || "0"}
+                                            <strong>스킬 포인트:</strong> {selectedCharacter.ArmoryProfile.UsingSkillPoint} /{" "}
+                                            {selectedCharacter.ArmoryProfile.TotalSkillPoint}
                                         </p>
                                     </div>
                                 )}
@@ -308,16 +318,13 @@ export default function Page() {
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            {selectedCharacter.ArmoryProfile?.Stats?.map((stat, index) => (
+                                            {selectedCharacter.ArmoryProfile.Stats.map((stat, index) => (
                                                 <tr key={index}>
                                                     <td className="border p-2">{stat.Type}</td>
                                                     <td className="border p-2">{stat.Value}</td>
                                                     <td className="border p-2">
-                                                        {stat.Tooltip?.map((tip, i) => (
-                                                            <div
-                                                                key={i}
-                                                                dangerouslySetInnerHTML={{ __html: tip }}
-                                                            />
+                                                        {stat.Tooltip.map((tip, i) => (
+                                                            <div key={i} dangerouslySetInnerHTML={{ __html: tip }} />
                                                         ))}
                                                     </td>
                                                 </tr>
@@ -339,7 +346,7 @@ export default function Page() {
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            {selectedCharacter.ArmoryProfile?.Tendencies?.map((tend, index) => (
+                                            {selectedCharacter.ArmoryProfile.Tendencies.map((tend, index) => (
                                                 <tr key={index}>
                                                     <td className="border p-2">{tend.Type}</td>
                                                     <td className="border p-2">{tend.Point}</td>
@@ -355,40 +362,40 @@ export default function Page() {
                                     <div>
                                         <h3 className="text-lg font-semibold mb-2">장비</h3>
                                         <ul className="grid gap-4">
-                                            {selectedCharacter.ArmoryEquipment?.map((equip, index) => (
+                                            {selectedCharacter.ArmoryEquipment.map((equip, index) => (
                                                 <li key={index} className="border rounded-md p-4 bg-gray-50">
                                                     <div className="flex items-center gap-4">
                                                         <img
                                                             src={equip.Icon || fallbackImage}
-                                                            alt={equip.Name || "장비"}
+                                                            alt={equip.Name}
                                                             className="w-16 h-16 object-contain"
                                                             onError={(e) => (e.target.src = fallbackImage)}
                                                         />
                                                         <div>
-                                                            <p className="font-semibold">{equip.Name || "알 수 없는 장비"}</p>
-                                                            <p>타입: {equip.Type || "없음"}</p>
-                                                            <p>등급: {equip.Grade || "없음"}</p>
+                                                            <p className="font-semibold">{equip.Name}</p>
+                                                            <p>타입: {equip.Type}</p>
+                                                            <p>등급: {equip.Grade}</p>
                                                             {equip.Tooltip && (
                                                                 <div className="text-sm text-gray-600">
                                                                     <p>
                                                                         <strong>기본 효과:</strong>{" "}
-                                                                        {equip.Tooltip?.match(/기본 효과<\/FONT>\",\"Element_001\":\"([^<]+)<BR>/i)?.[1] || "없음"}
+                                                                        {equip.Tooltip.match(/기본 효과<\/FONT>\",\"Element_001\":\"([^<]+)<BR>/i)?.[1] || "없음"}
                                                                     </p>
                                                                     <p>
                                                                         <strong>추가 효과:</strong>{" "}
-                                                                        {equip.Tooltip?.match(/추가 효과<\/FONT>\",\"Element_001\":\"([^<]+)<BR>/i)?.[1] || "없음"}
+                                                                        {equip.Tooltip.match(/추가 효과<\/FONT>\",\"Element_001\":\"([^<]+)<BR>/i)?.[1] || "없음"}
                                                                     </p>
                                                                     <p>
                                                                         <strong>슬롯 효과:</strong>{" "}
-                                                                        {equip.Tooltip?.match(/슬롯 효과<\/FONT><BR><FONT[^>]+>([^<]+)<img/i)?.[1] || "없음"}
+                                                                        {equip.Tooltip.match(/슬롯 효과<\/FONT><BR><FONT[^>]+>([^<]+)<img/i)?.[1] || "없음"}
                                                                     </p>
                                                                     <p>
                                                                         <strong>엘릭서:</strong>{" "}
-                                                                        {equip.Tooltip?.match(/엘릭서<\/FONT><br><font[^>]+><FONT[^>]+>([^<]+)<\/FONT>/i)?.[1] || "없음"}
+                                                                        {equip.Tooltip.match(/엘릭서<\/FONT><br><font[^>]+><FONT[^>]+>([^<]+)<\/FONT>/i)?.[1] || "없음"}
                                                                     </p>
                                                                     <p>
                                                                         <strong>초월 단계:</strong>{" "}
-                                                                        {equip.Tooltip?.match(/초월\]<\/FONT> <FONT[^>]+>(\d+)<\/FONT>단계/i)?.[1] || "없음"}
+                                                                        {equip.Tooltip.match(/초월\]<\/FONT> <FONT[^>]+>(\d+)<\/FONT>단계/i)?.[1] || "없음"}
                                                                     </p>
                                                                 </div>
                                                             )}
@@ -404,24 +411,22 @@ export default function Page() {
                                     <div>
                                         <h3 className="text-lg font-semibold mb-2">수집품</h3>
                                         <ul className="grid gap-4">
-                                            {selectedCharacter.Collectibles?.map((collect, index) => (
+                                            {selectedCharacter.Collectibles.map((collect, index) => (
                                                 <li key={index} className="border rounded-md p-4 bg-gray-50">
                                                     <div className="flex items-center gap-4">
                                                         <img
                                                             src={collect.Icon || fallbackImage}
-                                                            alt={collect.Type || "수집품"}
+                                                            alt={collect.Type}
                                                             className="w-16 h-16 object-contain"
                                                             onError={(e) => (e.target.src = fallbackImage)}
                                                         />
                                                         <div>
-                                                            <p className="font-semibold">{collect.Type || "알 수 없는 수집품"}</p>
-                                                            <p>
-                                                                포인트: {collect.Point || "0"} / {collect.MaxPoint || "0"}
-                                                            </p>
+                                                            <p className="font-semibold">{collect.Type}</p>
+                                                            <p>포인트: {collect.Point} / {collect.MaxPoint}</p>
                                                             <ul className="text-sm">
-                                                                {collect.CollectiblePoints?.map((point, i) => (
+                                                                {collect.CollectiblePoints.map((point, i) => (
                                                                     <li key={i}>
-                                                                        {point.PointName}: {point.Point || "0"} / {point.MaxPoint || "0"}
+                                                                        {point.PointName}: {point.Point} / {point.MaxPoint}
                                                                     </li>
                                                                 ))}
                                                             </ul>
@@ -432,13 +437,6 @@ export default function Page() {
                                         </ul>
                                     </div>
                                 )}
-
-                                <button
-                                    onClick={closeModal}
-                                    className="mt-4 w-full h-10 rounded-md bg-gray-800 text-white hover:bg-gray-700 transition-colors"
-                                >
-                                    닫기
-                                </button>
                             </>
                         )}
                     </div>

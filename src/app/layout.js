@@ -1,22 +1,15 @@
 import "./globals.css";
-import Navigation from "@/components/navegation";
-
 
 export const metadata = {
-  title: "3차 프로젝트",
-  description: "다양한 게임 정보를 제공하는 프로젝트 입니다.",
+  title: "RPGPT",
+  description: "게임 정보 커뮤니티 플랫폼",
 };
-
-
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="ko" className="light">
+    <html lang="ko">
       <body>
-      <main className="container mx-auto pt-20 px-4">
-        <Navigation/>
         {children}
-          </main>
       </body>
     </html>
   );

@@ -1,19 +1,39 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 
 export default function Navigation() {
     const pathname = usePathname()
     const [isOpen, setIsOpen] = useState(false)
-    const [searchQuery, setSearchQuery] = useState("")
+    const [isDark, setIsDark] = useState(false)
+
+    useEffect(() => {
+        // 페이지 로드 시 현재 모드 반영
+        if (typeof window !== "undefined") {
+            const dark = localStorage.getItem("theme") === "dark"
+            setIsDark(dark)
+            document.body.classList.toggle("dark", dark)
+            document.body.classList.toggle("light", !dark)
+        }
+    }, [])
 
     const toggleMenu = () => setIsOpen(!isOpen)
-
-    const handleSearch = (e) => {
-        e.preventDefault()
-        alert(`검색어: ${searchQuery}`)
+    const toggleDarkMode = () => {
+        setIsDark((prev) => {
+            const next = !prev
+            if (next) {
+                document.body.classList.add("dark")
+                document.body.classList.remove("light")
+                localStorage.setItem("theme", "dark")
+            } else {
+                document.body.classList.remove("dark")
+                document.body.classList.add("light")
+                localStorage.setItem("theme", "light")
+            }
+            return next
+        })
     }
 
     // 클래스 이름을 조건부로 결합하는 함수
@@ -74,40 +94,18 @@ export default function Navigation() {
                         )}
                     </button>
                     <Link href="/" className="text-xl font-bold navigation-logo">
-                        3차 프로젝트
+                        RPGPT
                     </Link>
                 </div>
-
-                <form onSubmit={handleSearch} className="relative flex items-center">
-                    <input
-                        type="search"
-                        placeholder="검색..."
-                        className="flex h-10 w-40 rounded-full border px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-gray-950 md:w-64 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden [&::-ms-clear]:hidden navigation-search"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                    <button
-                        type="submit"
-                        className="absolute right-0 top-0 inline-flex h-10 w-10 items-center justify-center rounded-md transition-colors navigation-search-icon"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="h-4 w-4"
-                        >
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <path d="m21 21-4.3-4.3"></path>
-                        </svg>
-                        <span className="sr-only">검색</span>
-                    </button>
-                </form>
+                {/* 다크모드 토글 버튼 */}
+                <button
+                    onClick={toggleDarkMode}
+                    className="ml-4 text-2xl focus:outline-none navigation-button"
+                    aria-label="다크모드 토글"
+                    title="다크모드 토글"
+                >
+                    {isDark ? "🌙" : "☀️"}
+                </button>
             </header>
 
             {/* 네비게이션 사이드바 */}
