@@ -10,6 +10,8 @@ import AvatarSection from "@/components/dnf/AvatarSection";
 import CreatureSection from "@/components/dnf/CreatureSection";
 import FlagSection from "@/components/dnf/FlagSection";
 import TalismanSection from "@/components/dnf/TalismanSection";
+import SkillSection from "@/components/dnf/SkillSection";
+import BuffSkillSection from "@/components/dnf/BuffSkillSection";
 
 // 서버 ID를 한글 이름으로 매핑 (필요에 따라 추가/수정)
 const serverNameMap = {
@@ -29,11 +31,12 @@ const serverNameMap = {
 const TABS = [
   { id: "equipment", label: "장착 장비" },
   { id: "avatar", label: "아바타" },
+  { id: "skill", label: "스킬 정보" },
+  { id: "buffSkill", label: "버프 강화" },
   { id: "creature", label: "크리쳐" },
   { id: "talisman", label: "탈리스만" },
   { id: "flag", label: "휘장" },
   { id: "setItemEffect", label: "세트 아이템 효과" },
-  // 필요시 추가 탭 (예: 스킬트리, 버프강화 등)
 ];
 
 export default function CharacterDetailPage() {
@@ -48,11 +51,12 @@ export default function CharacterDetailPage() {
   const [activeTab, setActiveTab] = useState(TABS[0].id); // 첫 번째 탭을 기본 활성 탭으로 설정
 
   useEffect(() => {
+    let initialDetails = {};
     const initialDetailsQuery = searchParams.get('details');
     if (initialDetailsQuery) {
       try {
-        const parsedDetails = JSON.parse(initialDetailsQuery);
-        setCharacterDetails(parsedDetails);
+        initialDetails = JSON.parse(initialDetailsQuery);
+        setCharacterDetails(prevDetails => ({ ...prevDetails, ...initialDetails }));
       } catch (e) {
         console.error("Error parsing initial character details from query params:", e);
       }
@@ -69,8 +73,9 @@ export default function CharacterDetailPage() {
           );
           console.log("캐릭터 상세 정보 API 응답:", response.data);
           setCharacterDetails(prevDetails => ({
-            ...prevDetails,
-            ...response.data
+            ...initialDetails,
+            ...response.data,
+            imageUrl: response.data.imageUrl || initialDetails.imageUrl,
           }));
         } catch (err) {
           console.error("캐릭터 상세 정보 API 호출 오류:", err);
@@ -130,10 +135,11 @@ export default function CharacterDetailPage() {
       creature,
       flag,
       talismans,
+      skill,
     } = characterDetails;
     
     const currentServerName = serverNameMap[serverId] || serverId;
-    const characterPrimaryImageUrl = characterDetails.characterImageFull || characterDetails.imageUrl || `https://img-api.neople.co.kr/df/servers/${serverId}/characters/${characterId}?zoom=3`;
+    const characterPrimaryImageUrl = characterDetails.imageUrl || `https://img-api.neople.co.kr/df/servers/${serverId}/characters/${characterId}?zoom=3`;
     const fallbackImageUrl = "https://via.placeholder.com/300x400.png?text=Image+Not+Found";
 
     return (
@@ -166,18 +172,18 @@ export default function CharacterDetailPage() {
           </nav>
         </div>
 
-        {/* 탭 패널 - 로딩 상태는 characterDetails가 있을 경우 내부 컴포넌트의 props 존재 여부로 판단 가능 */}
-        {/* 각 섹션 컴포넌트는 characterDetails에서 필요한 props (예: equipment, avatar)를 받음 */}
-        {/* characterDetails가 로드되기 전 (초기 로딩 중)에는 아래 섹션들이 렌더링되지 않도록 하거나, 각 섹션에서 로딩 처리 */}
-        {loading && !characterDetails.equipment && <div className="py-8 text-center text-neutral-500 dark:text-neutral-300">장비 정보 로딩 중...</div>} 
+        {/* 탭 패널 */}
+        {loading && (!equipment || !avatar || !skill) && <div className="py-8 text-center text-neutral-500 dark:text-neutral-300">상세 정보 로딩 중...</div>} 
         
         <div className="mt-4">
-          {activeTab === 'equipment' && characterDetails.equipment && <EquipmentSection equipment={characterDetails.equipment} />}
-          {activeTab === 'avatar' && characterDetails.avatar && <AvatarSection avatar={characterDetails.avatar} />}
-          {activeTab === 'creature' && characterDetails.creature && <CreatureSection creature={characterDetails.creature} />}
-          {activeTab === 'talisman' && characterDetails.talismans && <TalismanSection talismans={characterDetails.talismans} />}
-          {activeTab === 'flag' && characterDetails.flag && <FlagSection flag={characterDetails.flag} />}
-          {activeTab === 'setItemEffect' && characterDetails.setItemInfo && <SetItemEffectSection setItemInfo={characterDetails.setItemInfo} />}
+          {activeTab === 'equipment' && equipment && <EquipmentSection equipment={equipment} />}
+          {activeTab === 'avatar' && avatar && <AvatarSection avatar={avatar} />}
+          {activeTab === 'skill' && skill?.style && <SkillSection skillStyle={skill.style} />}
+          {activeTab === 'buffSkill' && skill?.buff && <BuffSkillSection buffSkillInfo={skill.buff} />}
+          {activeTab === 'creature' && creature && <CreatureSection creature={creature} />}
+          {activeTab === 'talisman' && talismans && <TalismanSection talismans={talismans} />}
+          {activeTab === 'flag' && flag && <FlagSection flag={flag} />}
+          {activeTab === 'setItemEffect' && setItemInfo && <SetItemEffectSection setItemInfo={setItemInfo} />}
         </div>
       </>
     );

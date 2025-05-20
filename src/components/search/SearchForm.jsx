@@ -17,7 +17,7 @@ export default function SearchForm({
     return (
         <form
             onSubmit={onSubmit}
-            className="mb-8 flex items-center rounded-md shadow-lg overflow-hidden border h-14"
+            className="mb-8 flex items-center rounded-t-md shadow-lg border border-b-0 h-14"
             style={{
                 backgroundColor: 'var(--search-bg)',
                 borderColor: 'var(--search-border)',

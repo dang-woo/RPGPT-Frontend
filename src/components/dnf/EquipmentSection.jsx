@@ -18,16 +18,48 @@ export default function EquipmentSection({ equipment }) {
               {item.itemName}
               <RenderReinforceAmp item={item} />
             </p>
+            {item.itemGradeName && <p className="text-xs text-neutral-500 dark:text-neutral-400">등급: {item.itemGradeName}</p>}
             {item.setItemName && <p className="text-xs text-blue-400">세트: {item.setItemName}</p>}
             {item.enchant && item.enchant.status && item.enchant.status.length > 0 && (
               <div className="mt-1 text-xs text-green-400">
                 마법부여: {item.enchant.status.map(s => `${s.name} ${s.value}`).join(', ')}
               </div>
             )}
-            {/* 융합 옵션 표시 (API 응답에 fusionInfo 같은 필드가 있다고 가정) */}
-            {item.fusionInfo && (
+            {/* 융합 옵션 표시 */}
+            {item.fusionOption && item.fusionOption.options && item.fusionOption.options.length > 0 && (
               <div className="mt-1 text-xs text-yellow-500">
-                융합: {item.fusionInfo.itemName} {item.fusionInfo.options?.join(', ')}
+                융합 옵션: {item.fusionOption.options.map(opt => opt.explain).join(', ')}
+                {item.fusionOption.options.some(opt => opt.buff) && 
+                  ` (버프력: ${item.fusionOption.options.filter(opt => opt.buff).map(opt => opt.buff).join('/')})`}
+              </div>
+            )}
+            {/* 업그레이드 정보 표시 */}
+            {item.upgradeInfo && (
+              <div className="mt-1 text-xs text-purple-400">
+                업그레이드: {item.upgradeInfo.itemName} (세트 포인트: {item.upgradeInfo.setPoint || '-'})
+              </div>
+            )}
+            {/* 튠 정보 표시 */}
+            {item.tune && item.tune.length > 0 && 
+              item.tune.some(t => (t.status && t.status.length > 0) || t.level !== undefined || t.setPoint !== undefined || t.upgrade !== undefined) && (
+              <div className="mt-1 text-xs text-teal-400">
+                튠: {item.tune.map((t, tuneIndex) => {
+                  let tuneStr = '';
+                  if (t.status && t.status.length > 0) {
+                    tuneStr = t.status.map(s => `${s.name} ${s.value}`).join(', ');
+                  } else if (t.level !== undefined) {
+                    tuneStr = `Lv.${t.level}`;
+                    if (t.setPoint !== undefined) {
+                      tuneStr += ` (세트 포인트: ${t.setPoint || '-'})`;
+                    }
+                  }
+                  if (t.upgrade === "false") {
+                    tuneStr += `${tuneStr ? ', ' : ''}업그레이드 불가`;
+                  } else if (t.upgrade) { // true 또는 다른 값이면
+                    tuneStr += `${tuneStr ? ', ' : ''}업그레이드: ${t.upgrade}`;
+                  }
+                  return tuneStr;
+                }).filter(Boolean).join(' / ')}
               </div>
             )}
           </div>

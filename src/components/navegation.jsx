@@ -7,6 +7,7 @@ import { MdLogin, MdPersonAdd, MdLogout, MdOutlineBedtime, MdOutlineWbSunny } fr
 import { FaUserCircle } from "react-icons/fa"
 import useAuthStore from "@/lib/store/authStore"
 import { HomeIcon, UserCircleIcon as MyPageIcon } from "./icons"
+import { MessageSquareText } from 'lucide-react'
 
 // PC 및 모바일용 메뉴 아이콘 정의
 const MdMenu = ({size}) => <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" height={size} width={size} xmlns="http://www.w3.org/2000/svg"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>;
@@ -19,7 +20,7 @@ export default function Navigation() {
     const router = useRouter()
     const [isClient, setIsClient] = useState(false);
     const [isSidebarOpenMobile, setIsSidebarOpenMobile] = useState(false)
-    const [isNavExpandedPC, setIsNavExpandedPC] = useState(true)
+    const [isNavExpandedPC, setIsNavExpandedPC] = useState(false)
     const [isMobileView, setIsMobileView] = useState(false)
     const [isDark, setIsDark] = useState(false)
 
@@ -111,6 +112,7 @@ export default function Navigation() {
     const navigationItems = [
         { name: "홈", href: "/", icon: <HomeIcon size={22} />, action: closeSidebarMenu },
         { name: "마이페이지", href: "/mypage", icon: <MyPageIcon size={22} />, action: handleMyPageClick },
+        { name: "채팅", href: "/chat", icon: <MessageSquareText size={22} />, action: closeSidebarMenu },
     ];
 
     if (!isClient) {
@@ -235,8 +237,13 @@ export default function Navigation() {
                                 {item.icon}
                             </span>
                             <span className={classNames(
-                                "truncate",
-                                isMobileView ? "ml-3" : (isNavExpandedPC ? "ml-3" : "hidden")
+                                "truncate transition-opacity duration-500 ease-in-out",
+                                isMobileView 
+                                    ? "ml-3 opacity-100"
+                                    : (isNavExpandedPC 
+                                        ? "ml-3 opacity-100"
+                                        : "opacity-0 w-0 overflow-hidden pointer-events-none"
+                                      )
                             )}>
                                 {item.name}
                             </span>

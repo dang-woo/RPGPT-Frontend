@@ -13,20 +13,27 @@ export default function SetItemEffectSection({ setItemInfo }) {
       {setItemInfo.map((set, index) => (
         <div key={index} className="mb-3 p-3 bg-neutral-50 dark:bg-neutral-700 rounded shadow">
           <h3 className={`text-xl font-semibold ${rarityColorMap[set.setItemRarityName] || 'text-neutral-800 dark:text-neutral-100'}`}>{set.setItemName}</h3>
-          {/* API 응답에서 set.active.explain 대신 set.explain으로 변경된 것을 가정 (캐릭터정보.txt 참조) */}
-          {/* 또한, 캐릭터정보.txt 에서는 optionInfo.explain 으로 되어있어, API 응답 구조를 다시 한번 확인 필요 */}
-          {/* 우선은 기존 코드의 set.active.explain 구조를 따르되, 추후 API 응답에 맞춰 수정 */}
+          {/* 캐릭터정보.txt 에서는 active.explain 사용 */}
           {set.active?.explain && <p className="text-sm whitespace-pre-line text-neutral-600 dark:text-neutral-300 mt-1">{set.active.explain}</p>}
           
-          {/* 캐릭터정보.txt 에서는 optionInfo.status 로 되어있음. */}
-          {/* 여기서는 기존 코드의 set.active.status 구조를 따름 */}
+          {/* 캐릭터정보.txt 에서는 active.buffExplain 사용 (버프 직업군용) */}
+          {set.active?.buffExplain && <p className="text-sm whitespace-pre-line text-amber-600 dark:text-amber-400 mt-1">{set.active.buffExplain}</p>}
+
+          {/* 캐릭터정보.txt 에서는 active.status 사용 */}
           {set.active?.status && set.active.status.length > 0 && (
             <div className="mt-2">
-              <p className="text-sm font-medium text-neutral-700 dark:text-neutral-200">세트 효과:</p>
+              <p className="text-sm font-medium text-neutral-700 dark:text-neutral-200">세트 효과 스탯:</p>
               <ul className="list-disc list-inside text-xs text-neutral-500 dark:text-neutral-400">
                 {set.active.status.map((stat, i) => <li key={i}>{stat.name}: {stat.value}</li>)}
               </ul>
             </div>
+          )}
+
+          {/* 캐릭터정보.txt 에서는 active.setPoint 정보도 있음 (필요시 표시) */}
+          {set.active?.setPoint && (
+             <div className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
+                세트 포인트: {set.active.setPoint.current} / {set.active.setPoint.min} (최소) {set.active.setPoint.max ? `- ${set.active.setPoint.max} (최대)` : ''}
+             </div>
           )}
         </div>
       ))}

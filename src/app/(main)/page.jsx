@@ -1,17 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import DnfCharacterCard from "@/components/dnf/DnfCharacterCard";
 import SearchForm from "@/components/search/SearchForm";
+import { XCircle, History } from "lucide-react";
 
-export default function MainPage() { // 컴포넌트 이름을 MainPage 또는 HomePage 등으로 변경하는 것이 좋음
+const MAX_RECENT_SEARCHES = 5;
+const LOCAL_STORAGE_KEY = "rpgpt_recent_searches";
+
+export default function MainPage() {
   const [serverId, setServerId] = useState("all");
   const [characterName, setCharacterName] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [recentSearches, setRecentSearches] = useState([]);
+  const [isSearchHistoryVisible, setIsSearchHistoryVisible] = useState(false);
 
   const router = useRouter();
 
@@ -28,39 +34,71 @@ export default function MainPage() { // 컴포넌트 이름을 MainPage 또는 H
     { id: "adven", name: "모험단" },
   ];
 
-  const handleSearch = async (e) => {
-    if (e) e.preventDefault();
-    console.log("Current serverId state:", serverId, "Current characterName state:", characterName);
+  useEffect(() => {
+    const storedSearches = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (storedSearches) {
+      setRecentSearches(JSON.parse(storedSearches));
+    }
+  }, []);
 
-    if (!characterName.trim()) {
+  const saveRecentSearches = (searches) => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(searches));
+  };
+
+  const addSearchToHistory = (searches) => {
+    const newSearchItem = { serverId: serverId, serverName: serverOptions.find(s => s.id === serverId)?.name || serverId, characterName: characterName, timestamp: new Date().getTime() };
+
+    let updatedSearches = recentSearches.filter(
+      item => !(item.serverId === newSearchItem.serverId && item.characterName.toLowerCase() === newSearchItem.characterName.toLowerCase())
+    );
+    updatedSearches = [newSearchItem, ...updatedSearches].slice(0, MAX_RECENT_SEARCHES);
+    
+    setRecentSearches(updatedSearches);
+    saveRecentSearches(updatedSearches);
+  };
+
+  const removeSearchFromHistory = (indexToRemove) => {
+    const updatedSearches = recentSearches.filter((_, index) => index !== indexToRemove);
+    setRecentSearches(updatedSearches);
+    saveRecentSearches(updatedSearches);
+  };
+
+  const handleRecentSearchClick = (searchItem) => {
+    setServerId(searchItem.serverId);
+    setCharacterName(searchItem.characterName);
+    handleSearch(null, searchItem.serverId, searchItem.characterName);
+  };
+
+  const handleSearch = async (e, searchServerId = serverId, searchCharacterName = characterName) => {
+    if (e) e.preventDefault();
+    
+    if (!searchCharacterName.trim()) {
       setError("캐릭터 이름을 입력해주세요.");
       return;
     }
-
-    console.log("Search initiated with params:", { server: serverId, name: characterName });
+    setIsSearchHistoryVisible(false);
     setLoading(true);
     setError(null);
-    setSearchResults([]);
 
     try {
       const response = await axios.get("http://localhost:8080/api/df/search", {
         params: {
-          server: serverId,
-          name: characterName,
+          server: searchServerId,
+          name: searchCharacterName,
         },
       });
-
-      console.log("API Response:", response);
-      console.log("API Response Data:", response.data);
-
+      
       const rows = response.data.rows || [];
       if (rows.length === 0) {
         setError("일치하는 캐릭터가 없습니다.");
+        setSearchResults([]);
       } else {
         setSearchResults(rows);
+        addSearchToHistory(rows);
       }
     } catch (err) {
       setError("검색 중 오류가 발생했습니다: " + (err.response?.data?.message || err.message));
+      setSearchResults([]);
     } finally {
       setLoading(false);
     }
@@ -73,13 +111,18 @@ export default function MainPage() { // 컴포넌트 이름을 MainPage 또는 H
 
   return (
     <div className="flex flex-col items-center min-h-screen p-4 pt-16" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
-      <div className="w-full max-w-2xl">
+      <div className="w-full max-w-2xl mt-8">
         <h1 className="text-5xl font-bold mb-10 text-center tracking-wider" style={{ color: 'var(--link-accent-color)' }}>
           RPGPT
         </h1>
 
-        <SearchForm 
-            onSubmit={handleSearch}
+        <div 
+          className="relative" 
+          onMouseEnter={() => recentSearches.length > 0 && setIsSearchHistoryVisible(true)}
+          onMouseLeave={() => setIsSearchHistoryVisible(false)}
+        >
+          <SearchForm 
+            onSubmit={(e) => handleSearch(e)}
             serverOptions={serverOptions}
             selectedServer={serverId}
             onServerChange={(e) => setServerId(e.target.value)}
@@ -88,16 +131,55 @@ export default function MainPage() { // 컴포넌트 이름을 MainPage 또는 H
             onCharacterNameChange={(e) => setCharacterName(e.target.value)}
             isLoading={loading}
             buttonText="SEARCH"
-        />
+          />
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-500/10 text-red-700 dark:text-red-400 border border-red-500/20 rounded-md text-center text-sm">
+          {recentSearches.length > 0 && isSearchHistoryVisible && (
+            <div 
+              className="absolute top-full left-0 right-0 z-50 w-full border shadow-lg rounded-b-md overflow-hidden"
+              style={{ backgroundColor: 'var(--search-bg)', borderColor: 'var(--search-border)' }}
+              onMouseEnter={() => setIsSearchHistoryVisible(true)}
+              onMouseLeave={() => setIsSearchHistoryVisible(false)}
+            >
+              <ul className="py-2 space-y-0.5">
+                {recentSearches.map((item, index) => (
+                  <li 
+                    key={item.timestamp} 
+                    className="flex items-center justify-between px-3 py-2 hover:bg-[var(--sidebar-hover)] transition-colors cursor-pointer"
+                    onClick={() => handleRecentSearchClick(item)}
+                    title={`"${item.characterName}" (${item.serverName}) 검색`}
+                  >
+                    <div className="flex items-center flex-grow min-w-0">
+                      <History size={16} className="mr-2.5 text-neutral-400 dark:text-neutral-500 flex-shrink-0" />
+                      <span className="text-sm text-neutral-700 dark:text-neutral-200 truncate">
+                        <span className="font-medium">{item.characterName}</span>
+                        <span className="text-xs text-neutral-500 dark:text-neutral-400 ml-1.5">({item.serverName})</span>
+                      </span>
+                    </div>
+                    <button 
+                      onClick={(e) => { 
+                          e.stopPropagation(); 
+                          removeSearchFromHistory(index); 
+                      }}
+                      className="ml-2 p-1 text-neutral-400 hover:text-red-500 dark:hover:text-red-400 transition-colors flex-shrink-0"
+                      title="검색 기록 삭제"
+                    >
+                      <XCircle size={16} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+
+        {error && !loading && (
+          <div className="w-full mt-6 mb-4 p-3 bg-red-500/10 text-red-700 dark:text-red-400 border border-red-500/20 rounded-md text-center text-sm">
             {error}
           </div>
         )}
 
         {searchResults.length > 0 && (
-          <div className="w-full max-w-5xl mt-10 mx-auto">
+          <div className="w-full mt-10">
             <h2 className="text-3xl font-semibold mb-8 text-center">
               검색 결과
             </h2>
@@ -112,6 +194,16 @@ export default function MainPage() { // 컴포넌트 이름을 MainPage 또는 H
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+
+        {loading && (
+          <div className="w-full mt-10 text-center text-neutral-500 dark:text-neutral-400">검색 중입니다...</div>
+        )}
+
+        {!loading && searchResults.length === 0 && !error && characterName && (
+          <div className="w-full mt-10 text-center text-neutral-500 dark:text-neutral-400">
+            \'{characterName}\'에 대한 검색 결과가 없습니다.
           </div>
         )}
       </div>

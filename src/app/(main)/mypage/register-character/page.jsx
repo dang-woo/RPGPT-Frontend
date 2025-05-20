@@ -67,64 +67,64 @@ export default function RegisterCharacterPage() {
     };
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <button
-                onClick={() => router.back()} 
-                className="mypage-button mb-6 text-sm px-4 py-2" // mypage-button 클래스 적용 및 패딩 조정
-            >
-                &larr; 마이페이지로 돌아가기
-            </button>
-
-            <h1 className="text-3xl font-bold mb-8 text-center mypage-title"> {/* mypage-title 클래스 적용 */}
-                내 캐릭터 등록
-            </h1>
-
-            <SearchForm 
-                onSubmit={handleSearch}
-                serverOptions={serverOptions} 
-                selectedServer={serverId}
-                onServerChange={(e) => setServerId(e.target.value)}
-                characterPlaceholder="등록할 캐릭터명 입력"
-                characterName={characterName}
-                onCharacterNameChange={(e) => setCharacterName(e.target.value)}
-                isLoading={loading}
-                buttonText="캐릭터 검색"
-                // SearchForm 내부 버튼도 mypage-button 스타일을 따르도록 props 추가 또는 SearchForm 수정 필요 (일단 보류)
-            />
-
-            {error && (
-                <div className="mt-6 mb-4 p-3 bg-red-500/10 text-red-700 dark:text-red-400 border border-red-500/20 rounded-md text-center text-sm">
-                    {error}
+        <div className="flex flex-col min-h-screen pt-16 w-full">
+            <div className="container mx-auto px-4 py-8 flex flex-col flex-grow mt-8">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+                    <h1 className="text-3xl font-bold mypage-title mb-4 sm:mb-0">
+                        내 캐릭터 등록
+                    </h1>
+                    <button
+                        onClick={() => router.back()} 
+                        className="mypage-button text-sm px-4 py-2 self-start sm:self-center mt-2 sm:mt-0 whitespace-nowrap" 
+                    >
+                        &larr; 마이페이지로 돌아가기
+                    </button>
                 </div>
-            )}
 
-            {searchResults.length > 0 && (
-                <div className="w-full mt-10 mx-auto">
-                    <h2 className="text-2xl font-semibold mb-6 text-center mypage-title"> {/* mypage-title 클래스 적용 */}
-                        검색 결과 - 등록할 캐릭터를 선택하세요
-                    </h2>
-                    <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                        {searchResults.map((character) => (
-                            <li key={`${character.serverId}-${character.characterId}`}>
-                                <DnfCharacterCard 
-                                    character={character}
-                                    serverOptions={serverOptions} 
-                                    // onShowDetails는 이 페이지에서는 상세 보기로 이동하지 않으므로 제거하거나 다른 용도로 사용
-                                    // onShowDetails={(s, cId) => console.log(`Detail view for ${cId} on ${s} (not navigating)`)}
-                                    onRegister={handleRegisterCharacter} // 등록 함수 전달
-                                />
-                            </li>
-                        ))}
-                    </ul>
-                     {/* 검색 결과 각 아이템에 대한 등록 버튼을 DnfCharacterCard 내부나 옆에 두는 것이 좋습니다. */}
-                     {/* 아래는 임시로 전체 검색 결과 하단에 두는 버튼 예시 (실제로는 각 카드에 있어야 함) */}
-                    {searchResults.length > 0 && !loading && (
-                        <div className="mt-8 text-center">
-                            <p className="text-sm text-gray-400">캐릭터 카드를 클릭하여 등록하세요.</p>
-                        </div>
-                    )}
+                <div className="w-full max-w-2xl mx-auto">
+                    <SearchForm 
+                        onSubmit={handleSearch}
+                        serverOptions={serverOptions} 
+                        selectedServer={serverId}
+                        onServerChange={(e) => setServerId(e.target.value)}
+                        characterPlaceholder="등록할 캐릭터명 입력"
+                        characterName={characterName}
+                        onCharacterNameChange={(e) => setCharacterName(e.target.value)}
+                        isLoading={loading}
+                        buttonText="캐릭터 검색"
+                    />
                 </div>
-            )}
+
+                {error && (
+                    <div className="mt-6 mb-4 p-3 bg-red-500/10 text-red-700 dark:text-red-400 border border-red-500/20 rounded-md text-center text-sm w-full max-w-2xl mx-auto">
+                        {error}
+                    </div>
+                )}
+
+                {searchResults.length > 0 && (
+                    <div className="w-full mt-10 mx-auto flex flex-col flex-grow">
+                        <h2 className="text-2xl font-semibold mb-6 text-center mypage-title">
+                            검색 결과 - 등록할 캐릭터를 선택하세요
+                        </h2>
+                        <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                            {searchResults.map((character) => (
+                                <li key={`${character.serverId}-${character.characterId}`}>
+                                    <DnfCharacterCard 
+                                        character={character}
+                                        serverOptions={serverOptions} 
+                                        onRegister={handleRegisterCharacter}
+                                    />
+                                </li>
+                            ))}
+                        </ul>
+                        {searchResults.length > 0 && !loading && (
+                            <div className="mt-8 text-center">
+                                <p className="text-sm text-gray-400">캐릭터 카드를 클릭하여 등록하세요.</p>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
         </div>
     );
 } 

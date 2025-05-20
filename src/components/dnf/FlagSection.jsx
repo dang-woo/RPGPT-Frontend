@@ -28,12 +28,17 @@ export default function FlagSection({ flag }) {
           <p className={`text-xl font-semibold ${rarityColorMap[flag.itemRarity] || 'text-neutral-800 dark:text-neutral-100'}`}>
             {flag.itemName}
           </p>
-          {flag.reinforceStatus && (
-            <p className="text-sm text-neutral-600 dark:text-neutral-400">
-              강화/증폭: {flag.reinforceStatus.join(', ')} {/* API 응답에 따라 수정 필요 */}
-            </p>
+          {flag.reinforce && <p className="text-sm text-orange-400">강화: +{flag.reinforce}</p>}
+          {flag.reinforceStatus && flag.reinforceStatus.length > 0 && (
+            <div className="text-sm text-neutral-600 dark:text-neutral-400">
+              <p>강화 효과:</p>
+              <ul className="list-disc list-inside ml-2">
+                {flag.reinforceStatus.map((status, idx) => (
+                  <li key={idx}>{status.name}: {status.value}</li>
+                ))}
+              </ul>
+            </div>
           )}
-          {flag.itemAbility && <p className="text-sm text-neutral-600 dark:text-neutral-400">능력치: {flag.itemAbility}</p>}
         </div>
       </div>
 

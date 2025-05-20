@@ -40,7 +40,9 @@ export default function CreatureSection({ creature }) {
             {creature.artifact.map((art, index) => (
               <div key={index} className="p-2 bg-neutral-50 dark:bg-neutral-700 rounded shadow text-sm">
                 <p className={`font-medium ${rarityColorMap[art.itemRarity] || 'text-neutral-700 dark:text-neutral-200'}`}>
-                  {art.itemName} ({art.slotColor ? `${art.slotColor} 슬롯` : '정보 없음'})
+                  {art.itemName}
+                  {/* 캐릭터정보.txt 에는 slotColor가 없음 */}
+                  {/* {art.slotColor ? ` (${art.slotColor} 슬롯)` : ''} */}
                 </p>
                 {/* API 응답에 아티팩트 옵션 정보가 있다면 추가 (예: art.options) */}
                 {/* <p className="text-xs text-gray-500">옵션: 공격력 증가 +5%</p> */}
