@@ -23,7 +23,7 @@ export default function Navigation() {
     const [isMobileView, setIsMobileView] = useState(false)
     const [isDark, setIsDark] = useState(false)
 
-    const { user, isLoading, fetchCurrentUser, logout: authLogout } = useAuthStore()
+    const { user, isLoading, logout: authLogout } = useAuthStore()
 
     useEffect(() => {
         setIsClient(true);
@@ -47,12 +47,8 @@ export default function Navigation() {
         document.body.classList.toggle("dark", initialDark)
         document.body.classList.toggle("light", !initialDark)
         
-        if (!user && !isLoading) {
-            fetchCurrentUser()
-        }
-
         return () => window.removeEventListener("resize", checkIsMobile)
-    }, [isClient, checkIsMobile, fetchCurrentUser, user, isLoading])
+    }, [isClient, checkIsMobile])
 
     // 새로운 useEffect 추가: 메인 콘텐츠 padding 조절
     useEffect(() => {

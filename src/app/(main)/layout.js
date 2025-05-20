@@ -1,6 +1,16 @@
+"use client";
+
+import { useEffect } from 'react';
+import useAuthStore from '@/lib/store/authStore';
 import Navigation from "@/components/navegation"; // Navigation 컴포넌트 import
 
 export default function MainLayout({ children }) {
+  const { fetchCurrentUser } = useAuthStore();
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, [fetchCurrentUser]);
+
   // 이 레이아웃은 이제 단순히 children을 전달하는 역할만 하거나,
   // (main) 그룹에만 특정적으로 필요한 추가 래퍼가 있다면 여기에 구성합니다.
   // Navigation과 기본 flex 구조는 RootLayout으로 이동했습니다.
