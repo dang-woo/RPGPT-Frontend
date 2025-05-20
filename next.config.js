@@ -22,6 +22,14 @@ const nextConfig = {
         protocol: "https",
         hostname: "cdn-lostark.game.onstove.com",
       },
+      {
+        protocol: "https",
+        hostname: "img-api.neople.co.kr",
+      },
+      {
+        protocol: "https",
+        hostname: "via.placeholder.com",
+      },
     ],
   },
 }

@@ -12,16 +12,16 @@ export default function PasswordInput({
 }) {
     const [showPassword, setShowPassword] = useState(false);
 
-    const baseInputClasses = "w-full pl-10 pr-10 py-2 border-b outline-none bg-transparent text-[var(--foreground)] placeholder-gray-400";
-    const errorBorderClass = error ? 'border-red-500' : 'border-gray-500';
+    const baseInputClasses = "w-full pl-10 pr-10 py-2 border-b outline-none bg-transparent text-[var(--foreground)] placeholder-neutral-400 dark:placeholder-gray-400";
+    const errorBorderClass = error ? 'border-red-500' : 'border-neutral-300 dark:border-gray-500';
     const focusBorderClass = 'focus:border-[var(--main-button-bg)]';
     const finalInputClassName = `${baseInputClasses} ${errorBorderClass} ${focusBorderClass} ${inputClassName || ''}`.trim();
 
     return (
         <div>
-            <label htmlFor={id} className="block text-sm font-medium mb-1">{label}</label>
+            <label htmlFor={id} className="block text-sm font-medium mb-1 text-[var(--foreground)]">{label}</label>
             <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-neutral-400 dark:text-gray-400">
                     <MdLockOutline size={20} />
                 </span>
                 <input
@@ -34,7 +34,7 @@ export default function PasswordInput({
                 />
                 <button
                     type="button"
-                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 cursor-pointer"
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-400 dark:text-gray-400 hover:text-[var(--foreground)] cursor-pointer"
                     onClick={() => setShowPassword((v) => !v)}
                     title={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
                 >
@@ -52,7 +52,7 @@ export default function PasswordInput({
                 </button>
             </div>
             {error && (
-                <p className="mt-1 text-sm text-red-500">{error}</p>
+                <p className="mt-1 text-sm text-red-500 dark:text-red-400">{error}</p>
             )}
         </div>
     );

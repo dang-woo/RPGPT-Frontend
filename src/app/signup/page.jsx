@@ -1,13 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { MdPerson, MdBadge, MdLockOutline } from "react-icons/md";
-import AuthBackground from "@/components/auth/AuthBackground";
+import { useRouter } from "next/navigation";
+import { MdPerson, MdBadge } from "react-icons/md";
+import AuthLayout from "@/components/auth/AuthLayout";
 import AuthButton from "@/components/auth/AuthButton";
 import PasswordInput from "@/components/auth/PasswordInput";
 import AuthInput from "@/components/auth/AuthInput";
+import useAuthStore from "@/lib/store/authStore";
 
 export default function SignupPage() {
+    const router = useRouter();
+    const { signup } = useAuthStore();
     const [formData, setFormData] = useState({
         nickname: '',
         username: '',
@@ -21,7 +25,8 @@ export default function SignupPage() {
         username: '',
         password: '',
         confirmPassword: '',
-        termsAgreement: ''
+        termsAgreement: '',
+        form: ''
     });
 
     const handleChange = (e) => {
@@ -32,7 +37,8 @@ export default function SignupPage() {
         }));
         setErrors(prev => ({
             ...prev,
-            [id]: ''
+            [id]: '',
+            form: ''
         }));
     };
 
@@ -43,7 +49,8 @@ export default function SignupPage() {
             username: '',
             password: '',
             confirmPassword: '',
-            termsAgreement: ''
+            termsAgreement: '',
+            form: ''
         };
 
         // 닉네임 검증
@@ -88,84 +95,97 @@ export default function SignupPage() {
         return isValid;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setErrors(prev => ({ ...prev, form: '' }));
         if (validateForm()) {
-            // TODO: 백엔드 API 연동
-            console.log('Form submitted:', formData);
+            try {
+                const payload = {
+                    userId: formData.username,
+                    password: formData.password,
+                    passwordConfirm: formData.confirmPassword,
+                    nickname: formData.nickname
+                };
+                const result = await signup(payload);
+                
+                console.log('Signup result:', result);
+                alert(result.message || '회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.');
+                router.push('/login');
+
+            } catch (error) {
+                console.error('Signup failed:', error);
+                setErrors(prev => ({
+                    ...prev,
+                    form: error.message || '회원가입 중 오류가 발생했습니다.'
+                }));
+            }
         }
     };
 
     return (
-        <div className="w-full min-h-screen bg-[var(--background)] text-[var(--foreground)] flex flex-col lg:flex-row">
-            {/* 왼쪽: 회원가입 폼 */}
-            <div className="lg:w-2/5 flex flex-col justify-center px-6 py-8 lg:px-16 xl:px-24 2xl:px-32">
-                <div className="max-w-md w-full mx-auto">
-                    <div className="mb-8">
-                        <h2 className="text-3xl font-bold mb-2">회원가입</h2>
-                        <p className="mb-4 text-base">
-                            이미 계정이 있으신가요?<br />
-                            <a href="/login" className="font-bold hover:underline text-[var(--link-accent-color)]">로그인</a>
-                        </p>
-                    </div>
-                    <form className="space-y-6" onSubmit={handleSubmit}>
-                        <AuthInput 
-                            id="nickname"
-                            label="닉네임"
-                            value={formData.nickname}
+        <AuthLayout
+            formTitle="회원가입"
+            subtitleText="이미 계정이 있으신가요?"
+            subtitleLinkHref="/login"
+            subtitleLinkText="로그인"
+        >
+            <form className="space-y-6" onSubmit={handleSubmit}>
+                <AuthInput 
+                    id="nickname"
+                    label="닉네임"
+                    value={formData.nickname}
+                    onChange={handleChange}
+                    placeholder="닉네임을 입력하세요"
+                    icon={MdBadge}
+                    error={errors.nickname}
+                />
+                <AuthInput 
+                    id="username"
+                    label="아이디"
+                    value={formData.username}
+                    onChange={handleChange}
+                    placeholder="아이디를 입력하세요"
+                    icon={MdPerson}
+                    error={errors.username}
+                />
+                <PasswordInput 
+                    id="password"
+                    label="비밀번호"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="비밀번호를 입력하세요"
+                    error={errors.password}
+                />
+                <PasswordInput 
+                    id="confirmPassword"
+                    label="비밀번호 확인"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    placeholder="비밀번호를 다시 입력하세요"
+                    error={errors.confirmPassword}
+                />
+                <div className="flex items-center justify-between text-xs">
+                    <label htmlFor="termsAgreement" className="flex items-center cursor-pointer">
+                        <input 
+                            type="checkbox" 
+                            id="termsAgreement"
+                            checked={formData.termsAgreement}
                             onChange={handleChange}
-                            placeholder="닉네임을 입력하세요"
-                            icon={MdBadge}
-                            error={errors.nickname}
-                        />
-                        <AuthInput 
-                            id="username"
-                            label="아이디"
-                            value={formData.username}
-                            onChange={handleChange}
-                            placeholder="아이디를 입력하세요"
-                            icon={MdPerson}
-                            error={errors.username}
-                        />
-                        <PasswordInput 
-                            id="password"
-                            label="비밀번호"
-                            value={formData.password}
-                            onChange={handleChange}
-                            placeholder="비밀번호를 입력하세요"
-                            error={errors.password}
-                        />
-                        <PasswordInput 
-                            id="confirmPassword"
-                            label="비밀번호 확인"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            placeholder="비밀번호를 다시 입력하세요"
-                            error={errors.confirmPassword}
-                        />
-                        <div className="flex items-center justify-between text-xs">
-                            <label htmlFor="termsAgreement" className="flex items-center cursor-pointer">
-                                <input 
-                                    type="checkbox" 
-                                    id="termsAgreement"
-                                    checked={formData.termsAgreement}
-                                    onChange={handleChange}
-                                    className="mr-2 h-4 w-4 text-[var(--main-button-bg)] focus:ring-[var(--main-button-bg)] border-gray-300 rounded"
-                                /> 
-                                <span className="text-gray-400 hover:text-[var(--foreground)]">
-                                    이용약관에 동의합니다. (필수)
-                                </span>
-                            </label>
-                        </div>
-                        {errors.termsAgreement && (
-                            <p className="text-red-500 text-xs -mt-3 mb-2">{errors.termsAgreement}</p>
-                        )}
-                        <AuthButton text="회원가입" />
-                    </form>
+                            className="mr-2 h-4 w-4 text-[var(--main-button-bg)] focus:ring-[var(--main-button-bg)] border-gray-300 rounded"
+                        /> 
+                        <span className="text-gray-400 hover:text-[var(--foreground)]">
+                            이용약관에 동의합니다. (필수)
+                        </span>
+                    </label>
                 </div>
-            </div>
-            {/* 오른쪽: 배경 사진 */}
-            <AuthBackground className="lg:w-3/5 flex-shrink-0" />
-        </div>
+                {errors.termsAgreement && (
+                    <p className="text-red-500 text-xs mt-1 mb-2">{errors.termsAgreement}</p>
+                )}
+                {errors.form && (
+                    <p className="text-red-500 text-sm text-center -mt-3 mb-2">{errors.form}</p>
+                )}
+                <AuthButton text="회원가입" />
+            </form>
+        </AuthLayout>
     );
 }

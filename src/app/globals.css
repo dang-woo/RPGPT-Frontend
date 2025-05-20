@@ -24,9 +24,18 @@
   --main-button-hover-bg: #b90e92;
   --main-button-hover-bg-dark: #b90e92;
   --link-accent-color: #d10fa7;
+
+  /* 마이페이지용 변수 추가 */
+  --mypage-title-text-color: var(--foreground); /* 기본값 (다크모드) */
+  --mypage-button-bg: var(--main-button-bg);
+  --mypage-button-hover-bg: var(--main-button-hover-bg);
+  --mypage-button-text-color: #ffffff;
 }
-body, html {
-  overflow-x: hidden !important;
+
+html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 body {
@@ -35,22 +44,40 @@ body {
   font-family: "Noto Sans KR", "Roboto", sans-serif;
   min-height: 100vh;
   margin: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-html {
-  height: 100%;
-  margin: 0;
-  padding: 0;
+  display: flex;
+  flex-direction: column;
   overflow-x: hidden;
 }
 
 body.light {
-  --background: #f5f6fa;
-  --foreground: #18181b;
-  --main-button-bg: #d10fa7;
-  --main-button-hover-bg: #b90e92;
+  --background: #ffffff; /*純白 배경 */
+  --foreground: #1f2937; /* 어두운 회색 텍스트 */
+  --main-button-bg: #2563eb; /* 파란색 계열 버튼 */
+  --main-button-hover-bg: #1d4ed8;
+  
+  /* 네비게이션 라이트 모드 변수 추가 */
+  --nav-bg: #ffffff;
+  --nav-border: #e5e7eb; /* 밝은 회색 테두리 */
+  --nav-text: #1f2937; /* 어두운 회색 텍스트 */
+  --nav-button-text: #4b5563; /* 회색 버튼 텍스트 */
+  --nav-button-hover-bg: #f3f4f6; /* 매우 밝은 회색 호버 배경 */
+  --nav-button-hover-text: #1f2937;
+  --search-border: #d1d5db;
+  --search-bg: #f9fafb;
+  --search-text: #1f2937;
+  --search-placeholder: #9ca3af;
+  --search-icon: #6b7280;
+  --sidebar-bg: #f9fafb; /* 사이드바 배경 */
+  --sidebar-text: #374151;
+  --sidebar-hover: #e5e7eb;
+  --overlay-bg: rgba(0, 0, 0, 0.4); /* 오버레이는 약간 어둡게 유지 */
+  --link-accent-color: #0ea5e9; /* Sky Blue 계열 링크 */
+
+  /* 마이페이지 라이트모드용 변수 오버라이드 */
+  --mypage-title-text-color: #111827; /* 라이트모드일 때 매우 어두운 회색 (거의 검은색) */
+  --mypage-button-bg: var(--main-button-bg); /* 라이트모드 main-button-bg 사용 */
+  --mypage-button-hover-bg: var(--main-button-hover-bg); /* 라이트모드 main-button-hover-bg 사용 */
+  --mypage-button-text-color: #ffffff; /* 이 부분은 :root 에도 있었는데, 라이트모드에서 동일하므로 여기서도 명시 */
 }
 
 body.dark {
@@ -111,4 +138,21 @@ body.dark {
 
 .navigation-text {
   color: var(--nav-text);
+}
+
+/* 마이페이지 제목 스타일 */
+.mypage-title {
+  color: var(--mypage-title-text-color);
+}
+
+/* 마이페이지 버튼 스타일 - @apply 사용하여 리팩토링 */
+@layer components {
+  .mypage-button {
+    @apply px-4 py-2 font-semibold rounded-md transition-colors;
+    background-color: var(--mypage-button-bg);
+    color: var(--mypage-button-text-color);
+  }
+  .mypage-button:hover {
+    background-color: var(--mypage-button-hover-bg);
+  }
 }
