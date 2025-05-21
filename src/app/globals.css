@@ -1,5 +1,7 @@
+/* Tailwind CSS 가져오기 */
 @import "tailwindcss";
 
+/* CSS 변수 정의 */
 :root {
   --background: #1a1a1a;
   --foreground: #e0e0e0;
@@ -24,21 +26,20 @@
   --main-button-hover-bg: #b90e92;
   --main-button-hover-bg-dark: #b90e92;
   --link-accent-color: #d10fa7;
-
-  /* 마이페이지용 변수 추가 */
+  --skeleton-bg: #2d2d2d; /* 다크모드 스켈레톤 배경 */
+  --icon-sun-color: #facc15; /* 해 아이콘 색상 (노란색 계열) */
+  --icon-moon-color: #818cf8; /* 달 아이콘 색상 (보라색 계열) */
+  --sidebar-width-expanded: 16rem; /* w-64 */
+  --sidebar-width-collapsed: 5rem;  /* w-20 */
   --mypage-title-text-color: var(--foreground); /* 기본값 (다크모드) */
   --mypage-button-bg: var(--main-button-bg);
   --mypage-button-hover-bg: var(--main-button-hover-bg);
   --mypage-button-text-color: #ffffff;
-
-  /* 마이페이지 빈 상태(empty state) 영역 스타일 변수 추가 */
   --mypage-empty-state-bg: #f9fafb; /* Tailwind gray-50 */
   --mypage-empty-state-border-color: #e5e7eb; /* Tailwind gray-200 */
   --mypage-empty-state-icon-color: #9ca3af; /* Tailwind gray-400 */
   --mypage-empty-state-title-color: #1f2937; /* Tailwind gray-800 */
   --mypage-empty-state-text-color: #6b7280; /* Tailwind gray-500 */
-
-  /* 채팅 UI 스타일 변수 추가 (라이트 모드) */
   --chat-ui-container-bg: #ffffff;
   --chat-ui-container-border: #e5e7eb; /* Tailwind gray-200 */
   --chat-message-user-bg: var(--main-button-bg); /* 라이트모드 main-button-bg (파란색) */
@@ -56,17 +57,17 @@
   --chat-send-button-text: #ffffff;
   --chat-send-button-disabled-bg: #d1d5db; /* Tailwind gray-300 */
   --chat-send-button-disabled-text: #9ca3af; /* Tailwind gray-400 */
-
-  /* 채팅 페이지 전체 배경 변수 (라이트 모드) */
   --chat-page-background: #f3f4f6; /* 연한 회색, Tailwind gray-100 */
 }
 
+/* HTML 요소 스타일 */
 html {
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
+/* Body 요소 스타일 */
 body {
   background: var(--background);
   color: var(--foreground);
@@ -78,13 +79,12 @@ body {
   overflow-x: hidden;
 }
 
+/* 라이트 모드 스타일 */
 body.light {
   --background: #ffffff; /*純白 배경 */
   --foreground: #1f2937; /* 어두운 회색 텍스트 */
   --main-button-bg: #2563eb; /* 파란색 계열 버튼 */
-  --main-button-hover-bg: #1d4ed8;
-  
-  /* 네비게이션 라이트 모드 변수 추가 */
+  --main-button-hover-bg: #1d4ed8; /* 파란색 호버 */
   --nav-bg: #ffffff;
   --nav-border: #e5e7eb; /* 밝은 회색 테두리 */
   --nav-text: #1f2937; /* 어두운 회색 텍스트 */
@@ -101,28 +101,29 @@ body.light {
   --sidebar-hover: #e5e7eb;
   --overlay-bg: rgba(0, 0, 0, 0.4); /* 오버레이는 약간 어둡게 유지 */
   --link-accent-color: #0ea5e9; /* Sky Blue 계열 링크 */
-
-  /* 마이페이지 라이트모드용 변수 오버라이드 */
+  --skeleton-bg: #e5e7eb; /* 라이트모드 스켈레톤 배경 (밝은 회색) */
+  --icon-sun-color: #f59e0b; /* 해 아이콘 색상 (주황색 계열) */
+  --icon-moon-color: #6366f1; /* 달 아이콘 색상 (남색 계열) */
   --mypage-title-text-color: #1f2937;
   --mypage-button-bg: var(--main-button-bg); /* 파란색으로 복원 */
   --mypage-button-hover-bg: var(--main-button-hover-bg); /* 파란색 호버로 복원 */
   --mypage-button-text-color: #ffffff;
-
-  /* 마이페이지 빈 상태(empty state) 영역 스타일 클래스 */
   --mypage-empty-state-bg: #f9fafb; /* Tailwind gray-50 */
   --mypage-empty-state-border-color: #e5e7eb; /* Tailwind gray-200 */
   --mypage-empty-state-icon-color: #9ca3af; /* Tailwind gray-400 */
   --mypage-empty-state-title-color: #1f2937; /* Tailwind gray-800 */
   --mypage-empty-state-text-color: #6b7280; /* Tailwind gray-500 */
+  --chat-message-user-bg: var(--main-button-bg); /* 사용자 메시지 버블 배경 */
+  --chat-send-button-bg: var(--main-button-bg); /* 전송 버튼 배경 */
+  --chat-send-button-hover-bg: var(--main-button-hover-bg); /* 전송 버튼 호버 배경 */
 }
 
+/* 다크 모드 스타일 */
 body.dark {
   --background: #0a0620;
   --foreground: #e0e0e0;
   --main-button-bg: #d10fa7; /* 다크모드 주 버튼 (마젠타) */
   --main-button-hover-bg: #b90e92;
-
-  /* 채팅 UI 스타일 변수 추가 (다크 모드) */
   --chat-ui-container-bg: #1f2937; /* Tailwind gray-800 */
   --chat-ui-container-border: #374151; /* Tailwind gray-700 */
   --chat-message-user-bg: var(--main-button-bg); /* 다크모드 main-button-bg (마젠타) */
@@ -140,68 +141,75 @@ body.dark {
   --chat-send-button-text: #ffffff;
   --chat-send-button-disabled-bg: #4b5563; /* Tailwind gray-600 */
   --chat-send-button-disabled-text: #9ca3af; /* Tailwind gray-400 */
-
-  /* 채팅 페이지 전체 배경 변수 (다크 모드) */
   --chat-page-background: #111827; /* 짙은 회색, Tailwind gray-900 */
-
-  /* 마이페이지 빈 상태 테두리 다크 모드 오버라이드 추가 */
   --mypage-empty-state-border-color: #374151; /* Tailwind gray-700 */
-
-  /* 마이페이지 빈 상태 텍스트 색상 다크 모드 오버라이드 추가 */
   --mypage-empty-state-title-color: #d1d5db; /* Tailwind gray-300 */
   --mypage-empty-state-text-color: #9ca3af; /* Tailwind gray-400 */
-  /* 아이콘 색상은 --mypage-empty-state-icon-color를 사용하는데, 필요시 이것도 오버라이드 가능 (현재 gray-400)*/
 }
 
+/* 네비게이션 헤더 스타일 */
 .navigation-header {
   background-color: var(--nav-bg);
   border-color: var(--nav-border);
 }
 
+/* 네비게이션 로고 스타일 */
 .navigation-logo {
   color: var(--nav-text);
 }
 
+/* 네비게이션 버튼 스타일 */
 .navigation-button {
   color: var(--nav-button-text);
 }
 
+/* 네비게이션 버튼 호버 스타일 */
 .navigation-button:hover {
   background-color: var(--nav-button-hover-bg);
   color: var(--nav-button-hover-text);
 }
 
+/* 네비게이션 검색창 스타일 */
 .navigation-search {
   border-color: var(--search-border);
   background-color: var(--search-bg);
   color: var(--search-text);
 }
 
+/* 네비게이션 검색창 플레이스홀더 스타일 */
 .navigation-search::placeholder {
   color: var(--search-placeholder);
 }
 
+/* 네비게이션 검색 아이콘 스타일 */
 .navigation-search-icon {
   color: var(--search-icon);
 }
 
+/* 네비게이션 사이드바 스타일 */
 .navigation-sidebar {
   background-color: var(--sidebar-bg);
   color: var(--sidebar-text);
 }
 
+/* 네비게이션 사이드바 아이템 호버 스타일 */
 .navigation-sidebar-item:hover {
   background-color: var(--sidebar-hover);
 }
 
+/* 네비게이션 사이드바 활성 아이템 스타일 */
 .navigation-sidebar-item.active {
   background-color: var(--sidebar-hover);
+  color: var(--nav-button-hover-text); /* 활성 탭 텍스트 색상 (호버와 동일하게) */
+  font-weight: 600; /* semibold */
 }
 
+/* 네비게이션 오버레이 스타일 */
 .navigation-overlay {
   background-color: var(--overlay-bg);
 }
 
+/* 네비게이션 텍스트 스타일 */
 .navigation-text {
   color: var(--nav-text);
 }
@@ -211,8 +219,9 @@ body.dark {
   color: var(--mypage-title-text-color);
 }
 
-/* 마이페이지 버튼 스타일 - @apply 사용하여 리팩토링 */
+/* 컴포넌트 레이어 스타일 */
 @layer components {
+  /* 마이페이지 버튼 스타일 */
   .mypage-button {
     @apply px-4 py-2 font-semibold rounded-md transition-colors;
     background-color: var(--mypage-button-bg);
@@ -222,24 +231,25 @@ body.dark {
     background-color: var(--mypage-button-hover-bg);
   }
 
-  /* --- 채팅 UI 스타일 클래스 시작 --- */
-
+  /* 채팅 UI 스타일 클래스 시작 */
   /* 페이지 전체 컨테이너 */
   .chat-page-container {
     @apply flex flex-col h-screen w-full p-0 overflow-hidden;
-    /* background-color: var(--chat-page-background); */ /* 이 라인을 주석 처리 또는 삭제하여 body 배경색을 따르도록 함 */
   }
 
   /* 채팅 UI 전체 박스 */
   .chat-ui-wrapper {
-    @apply flex flex-col flex-1 overflow-hidden w-full max-w-4xl mx-auto h-full shadow-lg sm:rounded-lg;
-    background-color: var(--chat-ui-container-bg);
-    border-color: var(--chat-ui-container-border); /* 필요시 border-width와 함께 사용 */
+    @apply flex flex-col flex-1 overflow-hidden w-full max-w-5xl mx-auto h-full ;
+    border-color: var(--chat-ui-container-border);
   }
 
   /* 채팅 메시지 표시 영역 */
   .chat-messages-area {
-    @apply flex-1 overflow-y-auto relative p-4 sm:p-6 space-y-4 min-h-0 max-h-[81vh]; /* 높이 제한 추가 */
+    @apply flex-1 overflow-y-auto relative p-4 sm:p-6 space-y-4 min-h-0 max-h-[80vh];
+  }
+
+  .chat-messages-area.greeting-active {
+    @apply overflow-y-hidden;
   }
 
   /* 초기 인사 화면 */
@@ -267,7 +277,6 @@ body.dark {
   }
   .chat-message-bubble {
     @apply max-w-xs md:max-w-md lg:max-w-lg px-4 py-3 rounded-xl shadow break-words text-sm;
-    /* 기존 .chat-message 에서 일부 가져옴, leading-relaxed, whitespace-pre-wrap은 JSX에서 유지 또는 필요시 추가 */
   }
   .chat-message-bubble-user {
     @apply rounded-br-none;
@@ -280,21 +289,19 @@ body.dark {
     color: var(--chat-message-ai-text);
   }
 
-  /* 로딩 인디케이터 (AI 메시지 버블 스타일 활용) */
+  /* 로딩 인디케이터 */
   .chat-loading-indicator-bubble {
-    @apply /* chat-message-bubble-ai와 유사하게 */ max-w-xs md:max-w-md lg:max-w-lg px-4 py-3 rounded-xl shadow rounded-bl-none flex items-center;
+    @apply max-w-xs md:max-w-md lg:max-w-lg px-4 py-3 rounded-xl shadow rounded-bl-none flex items-center;
     background-color: var(--chat-message-ai-bg);
   }
   .chat-loading-dot {
     @apply w-2 h-2 rounded-full animate-pulse;
-    background-color: var(--chat-message-ai-text); /* AI 텍스트 색상과 유사하게 또는 지정된 색상 */
+    background-color: var(--chat-message-ai-text);
   }
 
   /* 채팅 입력 영역 */
   .chat-input-container {
     @apply px-4 py-3 sticky bottom-0;
-    background-color: var(--chat-input-area-inner-bg); /* .chat-input-area-inner-bg 변수 사용 */
-    border-top-width: 1px;
     border-top-color: var(--chat-input-area-border);
   }
   .chat-input-inner-flex {
@@ -302,9 +309,8 @@ body.dark {
   }
   .chat-input-textarea {
     @apply w-full p-3 border rounded-lg resize-none flex-grow focus:ring-2 focus:border-transparent transition-shadow duration-200 ease-in-out shadow-sm;
-    border-color: var(--chat-input-area-border); /* 기존 input area border 색상 사용 */
+    border-color: var(--chat-input-area-border);
     color: var(--chat-textarea-text);
-    /* rows는 JSX에서 props로 관리 */
   }
   .chat-input-textarea::placeholder {
     color: var(--chat-textarea-placeholder);
@@ -324,13 +330,11 @@ body.dark {
     color: var(--chat-send-button-disabled-text);
     @apply cursor-not-allowed;
   }
-
-  /* --- 채팅 UI 스타일 클래스 끝 --- */
+  /* 채팅 UI 스타일 클래스 끝 */
 }
 
-/* 마이페이지 빈 상태(empty state) 영역 스타일 클래스 */
+/* 마이페이지 빈 상태 스타일 */
 .mypage-empty-state {
-  /* background-color: var(--mypage-empty-state-bg); */ /* 이 라인을 주석 처리 또는 삭제 */
   border-color: var(--mypage-empty-state-border-color);
 }
 .mypage-empty-state-icon {
@@ -342,57 +346,60 @@ body.dark {
 .mypage-empty-state-text {
   color: var(--mypage-empty-state-text-color);
 }
+
 /* 채팅 UI 스타일 클래스 */
 .chat-ui-container {
   background-color: var(--chat-ui-container-bg);
   border-color: var(--chat-ui-container-border);
-  /* max-w-4xl mx-auto sm:rounded-lg sm:border 등은 JSX에서 유지 또는 여기서 @apply 가능 */
 }
 
-.chat-messages-area {
-  /* 특별한 스타일이 필요하다면 추가 (예: 패딩) */
-}
-
+/* 채팅 메시지 스타일 */
 .chat-message {
   @apply p-3 rounded-xl shadow-sm text-sm max-w-[85%] sm:max-w-[75%];
-  /* leading-relaxed whitespace-pre-wrap은 JSX에서 유지 */
 }
 
+/* 사용자 채팅 메시지 스타일 */
 .chat-message-user {
   background-color: var(--chat-message-user-bg);
   color: var(--chat-message-user-text);
 }
 
+/* AI 채팅 메시지 스타일 */
 .chat-message-ai {
   background-color: var(--chat-message-ai-bg);
   color: var(--chat-message-ai-text);
 }
 
+/* 채팅 인사말 래퍼 스타일 */
 .chat-greeting-wrapper {
   @apply flex flex-col items-center justify-center h-full text-center p-4 sm:p-6;
 }
 
+/* 채팅 인사말 제목 스타일 */
 .chat-greeting-title {
   @apply text-3xl sm:text-4xl font-semibold mb-3;
   color: var(--chat-greeting-title-text);
 }
 
+/* 채팅 인사말 부제목 스타일 */
 .chat-greeting-subtitle {
   @apply text-lg sm:text-xl;
   color: var(--chat-greeting-subtitle-text);
 }
 
+/* 채팅 입력 영역 래퍼 스타일 */
 .chat-input-area-wrapper {
   @apply p-2 sm:p-3 border-t bg-transparent;
-  border-top-color: var(--chat-ui-container-border); /* 컨테이너 보더와 일치 또는 별도 변수 */
+  border-top-color: var(--chat-ui-container-border);
 }
 
+/* 채팅 입력 영역 내부 스타일 */
 .chat-input-area-inner {
   @apply relative flex items-center gap-2 p-2 sm:p-2.5 rounded-xl md:rounded-2xl shadow w-full mx-auto;
   background-color: var(--chat-input-area-inner-bg);
-  /* max-w-full md:max-w-3xl lg:max-w-4xl 등은 JSX에서 유지 */
 }
 
+/* 채팅 텍스트 입력창 스타일 */
 .chat-textarea {
   @apply flex-1 p-2 sm:p-2.5 bg-transparent border-none outline-none resize-none text-sm sm:text-base leading-tight;
   color: var(--chat-textarea-text);
@@ -401,6 +408,7 @@ body.dark {
   color: var(--chat-textarea-placeholder);
 }
 
+/* 채팅 전송 버튼 스타일 */
 .chat-send-button {
   @apply p-2 sm:p-2.5 rounded-lg transition-colors duration-150 flex items-center justify-center aspect-square;
   background-color: var(--chat-send-button-bg);
@@ -410,12 +418,12 @@ body.dark {
   background-color: var(--chat-send-button-hover-bg);
 }
 .chat-send-button:disabled {
-  background-color: var(--chat-send-button-disabled-bg) !important; /* Tailwind disabled 스타일 오버라이드 */
+  background-color: var(--chat-send-button-disabled-bg) !important;
   color: var(--chat-send-button-disabled-text) !important;
 }
 
+/* 채팅 로딩 인디케이터 스타일 */
 .chat-loading-indicator-bubble {
- /* AI 메시지 버블과 유사하게 스타일링 */
   background-color: var(--chat-message-ai-bg);
   color: var(--chat-message-ai-text);
   @apply p-3 rounded-xl shadow-sm text-sm max-w-[85%] sm:max-w-[75%] animate-pulse;
@@ -424,7 +432,7 @@ body.dark {
   @apply leading-relaxed;
 }
 
-/* 채팅 페이지 전체 배경 클래스 */
+/* 채팅 페이지 전체 배경 스타일 */
 .chat-page-background {
-  background-color: var(--chat-page-background);
+  /* background-color: var(--chat-page-background); */
 }

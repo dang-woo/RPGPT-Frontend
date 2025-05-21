@@ -16,7 +16,9 @@ export default function MessageItem({ message }) {
             : "chat-message-bubble-ai"
           }`}
       >
-        <p className="whitespace-pre-wrap leading-relaxed">{message.text}</p>
+        <p className="whitespace-pre-wrap leading-relaxed">
+          {isUser && message.isQuickInfo && message.displayedText ? message.displayedText : message.text}
+        </p>
       </div>
     </div>
   );

@@ -43,7 +43,18 @@ export default function Navigation() {
         window.addEventListener("resize", checkIsMobile)
 
         const storedTheme = localStorage.getItem("theme")
-        const initialDark = storedTheme ? storedTheme === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        // localStorage에 "theme"이 없으면 시스템 설정을 따르고, "light" 또는 "dark" 값이 있으면 그 값을 사용합니다.
+        // "system"이라는 명시적인 값이 저장된 경우도 시스템 설정을 따릅니다.
+        let initialDark;
+        if (storedTheme === "dark") {
+            initialDark = true;
+        } else if (storedTheme === "light") {
+            initialDark = false;
+        } else { // storedTheme is null, undefined, or "system"
+            initialDark = prefersDark;
+        }
+        
         setIsDark(initialDark)
         document.body.classList.toggle("dark", initialDark)
         document.body.classList.toggle("light", !initialDark)
@@ -51,17 +62,19 @@ export default function Navigation() {
         return () => window.removeEventListener("resize", checkIsMobile)
     }, [isClient, checkIsMobile])
 
-    // 새로운 useEffect 추가: 메인 콘텐츠 padding 조절
     useEffect(() => {
         if (!isClient) return;
 
         const mainContent = document.getElementById('main-content-area');
         if (mainContent) {
+            const rootStyle = getComputedStyle(document.documentElement);
+            const sidebarExpandedWidth = rootStyle.getPropertyValue('--sidebar-width-expanded').trim() || '16rem';
+            const sidebarCollapsedWidth = rootStyle.getPropertyValue('--sidebar-width-collapsed').trim() || '5rem';
+            
             if (isMobileView) {
-                mainContent.style.paddingLeft = '0px'; // 모바일에서는 패딩 없음
+                mainContent.style.paddingLeft = '0px';
             } else {
-                // PC 뷰: isNavExpandedPC 상태에 따라 패딩 조절
-                mainContent.style.paddingLeft = isNavExpandedPC ? '16rem' : '5rem'; // w-64 (256px = 16rem), w-20 (80px = 5rem)
+                mainContent.style.paddingLeft = isNavExpandedPC ? sidebarExpandedWidth : sidebarCollapsedWidth;
             }
         }
     }, [isClient, isMobileView, isNavExpandedPC]);
@@ -117,14 +130,14 @@ export default function Navigation() {
 
     if (!isClient) {
         return (
-            <header className="fixed left-0 right-0 top-0 z-50 flex h-16 items-center justify-between border-b px-4 shadow-sm navigation-header bg-gray-100 dark:bg-gray-900 animate-pulse">
+            <header className="fixed left-0 right-0 top-0 z-50 flex h-16 items-center justify-between border-b px-4 shadow-sm navigation-header animate-pulse">
                 <div className="flex items-center">
-                    <div className="mr-2 h-10 w-10 bg-gray-300 dark:bg-gray-700 rounded-md"></div>
-                    <div className="h-6 w-24 bg-gray-300 dark:bg-gray-700 rounded"></div>
+                    <div className="mr-2 h-10 w-10 rounded-md bg-[var(--skeleton-bg)]"></div>
+                    <div className="h-6 w-24 rounded bg-[var(--skeleton-bg)]"></div>
                 </div>
                 <div className="flex items-center">
-                    <div className="h-8 w-8 bg-gray-300 dark:bg-gray-700 rounded-full mx-3"></div>
-                    <div className="h-8 w-28 bg-gray-300 dark:bg-gray-700 rounded-md"></div>
+                    <div className="h-8 w-8 rounded-full mx-3 bg-[var(--skeleton-bg)]"></div>
+                    <div className="h-8 w-28 rounded-md bg-[var(--skeleton-bg)]"></div>
                 </div>
             </header>
         );
@@ -136,7 +149,7 @@ export default function Navigation() {
                 <div className="flex items-center">
                     <button
                         onClick={toggleMenu}
-                        className="mr-2 inline-flex h-10 w-10 items-center justify-center rounded-md transition-colors navigation-button"
+                        className="mr-2 inline-flex h-10 w-10 items-center justify-center rounded-md navigation-button"
                         aria-label={isSidebarOpenMobile || ( !isMobileView && isNavExpandedPC) ? "메뉴 닫기/축소" : "메뉴 열기/확장"}
                     >
                         {isMobileView ? (
@@ -154,14 +167,14 @@ export default function Navigation() {
                     <button
                         onClick={toggleDarkMode}
                         type="button"
-                        className="p-2 rounded-full hover:bg-gray-700/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white mx-2 navigation-button"
+                        className="p-2 rounded-full navigation-button focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--nav-bg)] focus:ring-[var(--nav-text)] mx-2"
                         aria-label="다크모드 토글"
                         title="다크모드 토글"
                     >
                         {isDark ? (
-                            <MdOutlineWbSunny size={22} className={'text-yellow-400'} />
+                            <MdOutlineWbSunny size={22} className={'text-[var(--icon-sun-color)]'} />
                         ) : (
-                            <MdOutlineBedtime size={22} className={'text-indigo-400'} />
+                            <MdOutlineBedtime size={22} className={'text-[var(--icon-moon-color)]'} />
                         )}
                     </button>
 
@@ -169,13 +182,13 @@ export default function Navigation() {
                         <div className="text-sm navigation-text px-3 py-2 animate-pulse">로딩...</div>
                     ) : user ? (
                         <div className="flex items-center">
-                            <Link href="/mypage" className="flex items-center text-sm navigation-button px-3 py-1.5 rounded-md hover:bg-gray-700/80">
+                            <Link href="/mypage" className="flex items-center text-sm navigation-button px-3 py-1.5 rounded-md">
                                 <MyPageIcon className="mr-1.5" size={18} />
                                 {user.nickname}
                             </Link>
                             <button 
                                 onClick={handleLogout} 
-                                className="ml-2 flex items-center text-sm navigation-button px-3 py-1.5 rounded-md hover:bg-gray-700/80">
+                                className="ml-2 flex items-center text-sm navigation-button px-3 py-1.5 rounded-md">
                                 <MdLogout className="mr-1.5" size={18} />
                                 로그아웃
                             </button>
@@ -183,22 +196,22 @@ export default function Navigation() {
                     ) : (
                         <div className="flex items-center">
                             {pathname === "/login" ? (
-                                <Link href="/signup" className="flex items-center text-sm navigation-button px-3 py-1.5 rounded-md hover:bg-gray-700/80">
+                                <Link href="/signup" className="flex items-center text-sm navigation-button px-3 py-1.5 rounded-md">
                                     <MdPersonAdd className="mr-1.5" size={18} />
                                     회원가입
                                 </Link>
                             ) : pathname === "/signup" ? (
-                                <Link href="/login" className="flex items-center text-sm navigation-button px-3 py-1.5 rounded-md hover:bg-gray-700/80">
+                                <Link href="/login" className="flex items-center text-sm navigation-button px-3 py-1.5 rounded-md">
                                     <MdLogin className="mr-1.5" size={18} />
                                     로그인
                                 </Link>
                             ) : (
                                 <>
-                                    <Link href="/login" className="flex items-center text-sm navigation-button px-3 py-1.5 rounded-md hover:bg-gray-700/80">
+                                    <Link href="/login" className="flex items-center text-sm navigation-button px-3 py-1.5 rounded-md">
                                         <MdLogin className="mr-1.5" size={18} />
                                         로그인
                                     </Link>
-                                    <Link href="/signup" className="ml-2 flex items-center text-sm navigation-button px-3 py-1.5 rounded-md hover:bg-gray-700/80">
+                                    <Link href="/signup" className="ml-2 flex items-center text-sm navigation-button px-3 py-1.5 rounded-md">
                                         <MdPersonAdd className="mr-1.5" size={18} />
                                         회원가입
                                     </Link>
@@ -211,10 +224,11 @@ export default function Navigation() {
 
             <div
                 className={classNames(
-                    "fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] transition-all duration-300 ease-in-out navigation-sidebar shadow-lg overflow-y-auto",
+                    "fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] shadow-lg overflow-y-auto navigation-sidebar",
+                    "transition-[width,transform,opacity] duration-300 ease-in-out",
                     isMobileView 
-                        ? (isSidebarOpenMobile ? "translate-x-0 w-64" : "-translate-x-full w-64")
-                        : (isNavExpandedPC ? "w-64" : "w-20") 
+                        ? (isSidebarOpenMobile ? "translate-x-0 w-[var(--sidebar-width-expanded)]" : "-translate-x-full w-[var(--sidebar-width-expanded)]") // 모바일에서는 항상 확장된 너비
+                        : (isNavExpandedPC ? "w-[var(--sidebar-width-expanded)]" : "w-[var(--sidebar-width-collapsed)]") 
                 )}
             >
                 <nav className="flex flex-col p-2 space-y-1 mt-2">
@@ -224,25 +238,25 @@ export default function Navigation() {
                             href={item.href}
                             onClick={item.action}
                             className={classNames(
-                                "flex items-center h-12 rounded-lg px-3 text-base transition-colors navigation-sidebar-item",
-                                pathname === item.href ? "active font-semibold bg-[var(--nav-button-hover-bg)] text-[var(--nav-button-hover-text)]" : "hover:bg-[var(--nav-button-hover-bg)] hover:text-[var(--nav-button-hover-text)]",
+                                "flex items-center h-12 rounded-lg px-3 text-base navigation-sidebar-item",
+                                pathname === item.href ? "active" : "", // active 클래스는 CSS에서 관리
                                 !isMobileView && !isNavExpandedPC && "justify-center" 
                             )}
                             title={(!isMobileView && !isNavExpandedPC) ? item.name : ""}
                         >
                             <span className={classNames(
                                 "flex-shrink-0 w-6 h-6 flex items-center justify-center",
-                                (!isMobileView && isNavExpandedPC) && "mr-3"
+                                (!isMobileView && isNavExpandedPC) && "mr-3" // PC 확장 시에만 아이콘 오른쪽 마진
                             )}>
                                 {item.icon}
                             </span>
                             <span className={classNames(
                                 "truncate transition-opacity duration-500 ease-in-out",
-                                isMobileView 
+                                isMobileView // 모바일에서는 항상 텍스트 표시 (ml-3은 이미 적용됨)
                                     ? "ml-3 opacity-100"
-                                    : (isNavExpandedPC 
+                                    : (isNavExpandedPC // PC 확장 시에만 텍스트 표시
                                         ? "ml-3 opacity-100"
-                                        : "opacity-0 w-0 overflow-hidden pointer-events-none"
+                                        : "opacity-0 w-0 overflow-hidden pointer-events-none" // PC 축소 시 텍스트 숨김
                                       )
                             )}>
                                 {item.name}
@@ -254,7 +268,7 @@ export default function Navigation() {
 
             {isMobileView && isSidebarOpenMobile && (
                 <div 
-                    className="fixed inset-0 z-30 pt-16 bg-black/60 md:hidden" 
+                    className="fixed inset-0 z-30 pt-16 bg-black/60 md:hidden navigation-overlay" // navigation-overlay 클래스 추가
                     onClick={() => setIsSidebarOpenMobile(false)} 
                 />
             )}
