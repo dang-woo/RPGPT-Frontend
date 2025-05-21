@@ -1,5 +1,6 @@
 import "./globals.css";
 import Footer from "@/components/Footer";
+import ThemeInitializer from "@/components/ThemeInitializer";
 
 export const metadata = {
   title: "RPGPT",
@@ -9,7 +10,8 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="ko">
-      <body className="flex flex-col min-h-screen">
+      <body>
+        <ThemeInitializer />
         <main className="flex flex-col flex-1 overflow-y-auto">
           {children}
         </main>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AuthLayout from "@/components/auth/AuthLayout";
@@ -12,13 +12,24 @@ import { MdPerson } from "react-icons/md";
 
 export default function LoginPage() {
     const router = useRouter();
-    const { login, fetchCurrentUser } = useAuthStore(); // login, fetchCurrentUser 액션 가져오기
+    const { user, isLoading, login, fetchCurrentUser } = useAuthStore();
 
     const [formData, setFormData] = useState({
-        username: '', // 백엔드 LoginDto의 userId에 해당
+        username: '',
         password: ''
     });
     const [error, setError] = useState('');
+
+    useEffect(() => {
+        // 사용자가 이미 로그인 되어 있고, 로딩이 끝난 상태라면 메인으로 보낼 수 있으나,
+        // 요청은 "페이지가 항상 보이게" 이므로, 이 부분은 로그인 성공 시 handleSubmit 내부에서 처리.
+        // 만약 이 페이지에 접근했을 때 이미 로그인 되어있다면, handleSubmit은 일어나지 않으므로,
+        // 이 부분은 사용자의 명확한 의도에 따라 남겨두거나 제거할 수 있습니다.
+        // 여기서는 "페이지가 항상 보이게"에 집중하여, 페이지 로드 시 리디렉션은 제거합니다.
+        // if (!isLoading && user) {
+        //     router.push('/');
+        // }
+    }, [user, isLoading, router]);
 
     const handleChange = (e) => {
         const { id, value } = e.target;
@@ -26,25 +37,23 @@ export default function LoginPage() {
             ...prev,
             [id]: value
         }));
-        setError(''); // 입력 시 에러 메시지 초기화
+        setError('');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(''); // 제출 시 에러 메시지 초기화
+        setError('');
         if (!formData.username || !formData.password) {
             setError('아이디와 비밀번호를 모두 입력해주세요.');
             return;
         }
         try {
             const payload = {
-                userId: formData.username, // 백엔드 LoginDto의 userId에 맞게 전달
+                userId: formData.username,
                 password: formData.password
             };
-            const result = await login(payload); // authStore의 login 액션 호출
-            console.log('Login successful:', result);
-            await fetchCurrentUser(); // 로그인 성공 후 최신 사용자 정보 가져오기
-            router.push('/'); // 로그인 성공 시 메인 페이지로 이동
+            const result = await login(payload);
+            router.push('/');
         } catch (err) {
             console.error('Login failed:', err);
             setError(err.message || '로그인 중 오류가 발생했습니다.');

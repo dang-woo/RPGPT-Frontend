@@ -110,9 +110,9 @@ export default function MainPage() {
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen p-4 pt-16" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
+    <div className="flex flex-col items-center min-h-screen p-4 pt-16">
       <div className="w-full max-w-2xl mt-8">
-        <h1 className="text-5xl font-bold mb-10 text-center tracking-wider" style={{ color: 'var(--link-accent-color)' }}>
+        <h1 className="text-5xl font-bold mb-10 text-center tracking-wider text-[var(--link-accent-color)]">
           RPGPT
         </h1>
 

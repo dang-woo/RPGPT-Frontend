@@ -41,7 +41,6 @@ const TABS = [
   { id: "creature", label: "크리쳐" },
   { id: "talisman", label: "탈리스만" },
   { id: "flag", label: "휘장" },
-  { id: "setItemEffect", label: "세트 아이템 효과" },
 ];
 
 export default function CharacterDetailPage() {
@@ -344,14 +343,13 @@ export default function CharacterDetailPage() {
         } 
         
         <div className="mt-4">
-          {activeTab === 'equipment' && equipment && <EquipmentSection equipment={equipment} />}
+          {activeTab === 'equipment' && equipment && <EquipmentSection equipment={equipment} setItemInfo={setItemInfo} />}
           {activeTab === 'avatar' && avatar && <AvatarSection avatar={avatar} />}
           {activeTab === 'skill' && skill?.style && <SkillSection skillStyle={skill.style} />}
           {activeTab === 'buffSkill' && skill?.buff && <BuffSkillSection buffSkillInfo={skill.buff} />}
           {activeTab === 'creature' && creature && <CreatureSection creature={creature} />}
           {activeTab === 'talisman' && talismans && <TalismanSection talismans={talismans} />}
           {activeTab === 'flag' && flag && <FlagSection flag={flag} />}
-          {activeTab === 'setItemEffect' && setItemInfo && <SetItemEffectSection setItemInfo={setItemInfo} />}
         </div>
       </>
     );

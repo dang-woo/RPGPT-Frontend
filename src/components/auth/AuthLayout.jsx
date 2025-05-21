@@ -8,7 +8,7 @@ export default function AuthLayout({
     children
 }) {
     return (
-        <div className="w-full min-h-screen bg-[var(--background)] text-[var(--foreground)] flex flex-col lg:flex-row">
+        <div className="w-full min-h-screen text-[var(--foreground)] flex flex-col lg:flex-row">
             {/* 왼쪽: 폼 섹션 */}
             <div className="lg:w-2/5 flex flex-col justify-center items-center px-6 pt-16 pb-8 lg:px-8 xl:px-12">
                 {/* Mobile Logo */}

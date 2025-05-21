@@ -14,7 +14,7 @@ export default function SetItemEffectSection({ setItemInfo }) {
 
   return (
     <div className="mb-8 p-6 bg-white dark:bg-neutral-800 shadow-xl rounded-lg border border-neutral-200 dark:border-neutral-700">
-      <h2 className="text-2xl font-bold mb-6 text-[var(--link-accent-color)]">세트 아이템 효과</h2>
+      <h2 className="text-2xl mb-6 ">세트 아이템 효과</h2>
       <ul className="space-y-4">
         {setItemInfo.map((set, index) => {
           // dd.txt의 setItemInfo 객체 내에 setItemRarityName 필드가 있으므로 이를 사용.

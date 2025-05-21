@@ -42,22 +42,20 @@ export default function Navigation() {
         checkIsMobile()
         window.addEventListener("resize", checkIsMobile)
 
+        // ThemeInitializer가 body 클래스를 관리하므로, 여기서는 isDark 상태만 설정합니다.
         const storedTheme = localStorage.getItem("theme")
         const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        // localStorage에 "theme"이 없으면 시스템 설정을 따르고, "light" 또는 "dark" 값이 있으면 그 값을 사용합니다.
-        // "system"이라는 명시적인 값이 저장된 경우도 시스템 설정을 따릅니다.
         let initialDark;
         if (storedTheme === "dark") {
             initialDark = true;
         } else if (storedTheme === "light") {
             initialDark = false;
-        } else { // storedTheme is null, undefined, or "system"
+        } else { 
             initialDark = prefersDark;
         }
-        
-        setIsDark(initialDark)
-        document.body.classList.toggle("dark", initialDark)
-        document.body.classList.toggle("light", !initialDark)
+        setIsDark(initialDark);
+        // document.body.classList.toggle("dark", initialDark) // ThemeInitializer가 처리
+        // document.body.classList.toggle("light", !initialDark) // ThemeInitializer가 처리
         
         return () => window.removeEventListener("resize", checkIsMobile)
     }, [isClient, checkIsMobile])

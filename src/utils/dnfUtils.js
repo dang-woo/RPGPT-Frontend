@@ -2,12 +2,13 @@
 export const rarityColorMap = {
   '커먼': 'text-gray-500',
   '언커먼': 'text-green-500',
-  '레어': 'text-blue-500',
+  '레어': 'text-purple-500',
   '유니크': 'text-pink-500',
-  '에픽': 'text-orange-500',
-  '레전더리': 'text-yellow-500',
+  '레전더리': 'text-orange-500',
+  '에픽': 'text-yellow-500',
   '신화': 'text-purple-600',
-  '태초': 'text-red-500',
+  '흑아': 'text-red-500',
+  '태초': 'text-teal-500',
 };
 
 // 아이템의 강화/증폭 수치를 표시하는 함수 (JSX를 반환하므로 React 컴포넌트 또는 함수로 사용)

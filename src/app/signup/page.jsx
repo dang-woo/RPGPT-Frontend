@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { MdPerson, MdBadge } from "react-icons/md";
 import AuthLayout from "@/components/auth/AuthLayout";
@@ -11,7 +11,7 @@ import useAuthStore from "@/lib/store/authStore";
 
 export default function SignupPage() {
     const router = useRouter();
-    const { signup } = useAuthStore();
+    const { user, isLoading, signup } = useAuthStore();
     const [formData, setFormData] = useState({
         nickname: '',
         username: '',
@@ -28,6 +28,13 @@ export default function SignupPage() {
         termsAgreement: '',
         form: ''
     });
+
+    useEffect(() => {
+        // 페이지 접근 시 리디렉션 로직 제거
+        // if (!isLoading && user) {
+        //     router.push('/');
+        // }
+    }, [user, isLoading, router]);
 
     const handleChange = (e) => {
         const { id, value, type, checked } = e.target;
@@ -53,7 +60,6 @@ export default function SignupPage() {
             form: ''
         };
 
-        // 닉네임 검증
         newErrors.nickname = !formData.nickname.trim()
             ? '닉네임을 입력해주세요'
             : formData.nickname.length < 2
@@ -61,7 +67,6 @@ export default function SignupPage() {
             : '';
         if (newErrors.nickname) isValid = false;
 
-        // 아이디 검증
         newErrors.username = !formData.username.trim()
             ? '아이디를 입력해주세요'
             : formData.username.length < 4
@@ -69,7 +74,6 @@ export default function SignupPage() {
             : '';
         if (newErrors.username) isValid = false;
 
-        // 비밀번호 검증
         newErrors.password = !formData.password
             ? '비밀번호를 입력해주세요'
             : formData.password.length < 6
@@ -77,7 +81,6 @@ export default function SignupPage() {
             : '';
         if (newErrors.password) isValid = false;
 
-        // 비밀번호 확인 검증
         newErrors.confirmPassword = !formData.confirmPassword
             ? '비밀번호 확인을 입력해주세요'
             : formData.password !== formData.confirmPassword
@@ -85,7 +88,6 @@ export default function SignupPage() {
             : '';
         if (newErrors.confirmPassword) isValid = false;
 
-        // 이용약관 동의 검증
         newErrors.termsAgreement = !formData.termsAgreement
             ? '이용약관에 동의해주세요.'
             : '';
