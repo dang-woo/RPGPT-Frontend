@@ -6,7 +6,7 @@ const Footer = () => {
     <footer id="site-footer" className="bg-neutral-100 dark:bg-gray-800 text-neutral-700 dark:text-white py-8 px-4 sm:px-6 lg:px-8 border-t dark:border-neutral-700">
       <div className="container mx-auto flex flex-col md:flex-row md:justify-between items-center">
         <div className="mb-4 md:mb-0 md:ml-20">
-          {/* TODO: 로고 이미지 또는 텍스트로 교체 */}
+
           <Link href="/" className="text-2xl font-bold text-neutral-900 dark:text-white">
             RPGPT
           </Link>

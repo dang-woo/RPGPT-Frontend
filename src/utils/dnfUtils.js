@@ -18,7 +18,7 @@ export const RenderReinforceAmp = ({ item }) => {
     text += `+${item.reinforce}강화`;
   }
   // API 응답에서 amplificationName은 증폭으로 인한 스탯 증가 이름 (예: "차원 지능")
-  // 증폭 수치는 reinforce 값으로 표현될 수 있음. API 구조를 다시 확인해야 함.
+  // 증폭 수치는 reinforce 값으로 표현될 수 있음. API 구조를 다시 확인해야 하다.
   // 우선은 기존 로직을 유지하되, 증폭 표시를 위한 명확한 필드가 필요함.
   // 예시: item.amplificationValue, item.amplificationType 등이 있다면 활용.
   // 여기서는 item.amplificationName이 존재하고, 강화 수치가 있을 때 증폭으로 간주하는 로직을 유지.
