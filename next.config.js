@@ -48,6 +48,7 @@ const nextConfig = {
   },
   webpack: (config) => {
     // ... existing code ...
+    return config;
   },
 }
 
