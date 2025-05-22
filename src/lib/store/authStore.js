@@ -19,33 +19,37 @@ const useAuthStore = create((set, get) => ({
     try {
       const response = await apiClient.post('/auth/login', credentials);
       
-      // 백엔드 응답에 success 필드가 있고, 해당 필드가 true이며, 토큰이 존재하는지 명확히 확인
-      if (response.data && response.data.success === true && response.data.token && response.data.token.accessToken) {
+      // 수정된 조건: 응답 데이터와 토큰 객체, 그리고 accessToken이 존재하는지 확인
+      // 백엔드 응답 예시: { message: "로그인 성공", token: { accessToken: "...", refreshToken: "..." } }
+      if (response.data && response.data.token && response.data.token.accessToken) {
         localStorage.setItem(ACCESS_TOKEN_KEY, response.data.token.accessToken);
         
         if (response.data.token.refreshToken) {
           localStorage.setItem(REFRESH_TOKEN_KEY, response.data.token.refreshToken);
+          console.log('[AuthStore] AccessToken and RefreshToken stored from login response.');
         } else {
-          console.warn('Refresh token not found in login response. Token refresh may not work.');
+          // refreshToken이 없는 경우는 이제 발생하지 않을 것으로 예상되지만, 방어적으로 로그 유지
+          localStorage.removeItem(REFRESH_TOKEN_KEY); // 혹시 모를 이전 값 제거
+          console.warn('[AuthStore] Refresh token not found in login response. This might affect token refresh.');
         }
         
+        // fetchCurrentUser를 호출하여 사용자 정보를 가져오고 user 상태를 업데이트합니다.
+        // fetchCurrentUser 내부에서 isLoading 상태도 관리합니다.
         await get().fetchCurrentUser(true); 
-        set({ isLoggingIn: false }); 
-        // 로그인 성공 메시지는 response.data.message를 사용하거나 기본 메시지 사용
-        return { success: true, message: response.data.message || "로그인 되었습니다." }; // 성공 메시지 명확화
+        set({ isLoggingIn: false }); // 로그인 진행 상태만 false로 변경
+
+        // 성공 객체 반환 (메시지는 백엔드 응답을 사용하거나 기본값 설정)
+        return { success: true, message: response.data.message || "로그인 되었습니다." };
       } else {
-        // 로그인 실패 또는 응답 형식 오류
-        // 백엔드가 success: false 와 함께 message를 보내주는 경우 해당 메시지 사용
-        // 그렇지 않다면 일반적인 실패 메시지 사용
-        const errorMessage = response.data?.message || '아이디 또는 비밀번호가 올바르지 않거나, 서버 응답이 올바르지 않습니다.';
+        // 로그인 실패 또는 예상치 못한 응답 형식
+        const errorMessage = response.data?.message || '아이디 또는 비밀번호가 올바르지 않거나, 서버 응답이 예상과 다릅니다.';
         set({ user: null, isLoggingIn: false, isLoading: false, error: errorMessage });
         throw new Error(errorMessage);
       }
     } catch (error) {
-      // API 호출 자체에서 발생한 네트워크 오류 또는 위에서 throw된 에러
+      // API 호출 실패 또는 위에서 throw된 에러 처리
       const message = error.response?.data?.message || error.message || '로그인 중 알 수 없는 오류가 발생했습니다.';
       set({ user: null, isLoggingIn: false, isLoading: false, error: message });
-      // 실패 시 토큰 제거는 이미 apiClient 응답 인터셉터에서 처리할 수도 있지만, 여기서도 확실히 제거
       localStorage.removeItem(ACCESS_TOKEN_KEY);
       localStorage.removeItem(REFRESH_TOKEN_KEY); 
       throw new Error(message);

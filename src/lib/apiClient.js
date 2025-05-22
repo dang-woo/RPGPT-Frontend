@@ -55,6 +55,20 @@ const processQueue = (error, token = null) => {
 
 apiClient.interceptors.response.use(
   (response) => {
+    // 일반적인 API 호출 성공 시, 헤더에 새 토큰이 있는지 확인
+    // 백엔드 JwtAuthenticationFilter에서 토큰 재발급 후 헤더에 담아주는 경우를 처리
+    const newAccessTokenHeader = response.headers['new-access-token'];
+    const newRefreshTokenHeader = response.headers['new-refresh-token']; // 백엔드가 응답 헤더에 New-Refresh-Token을 준다면 사용
+
+    if (newAccessTokenHeader) {
+      localStorage.setItem(ACCESS_TOKEN_KEY, newAccessTokenHeader);
+      console.log('[API Response Interceptor] New AccessToken from response header stored.');
+    }
+    if (newRefreshTokenHeader) {
+      localStorage.setItem(REFRESH_TOKEN_KEY, newRefreshTokenHeader);
+      console.log('[API Response Interceptor] New RefreshToken from response header stored.');
+    }
+
     return response;
   },
   async (error) => {
