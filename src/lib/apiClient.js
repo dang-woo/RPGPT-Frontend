@@ -18,9 +18,15 @@ apiClient.interceptors.request.use(
     console.log('[API Request Interceptor] Triggered for URL:', config.url);
     const token = localStorage.getItem(ACCESS_TOKEN_KEY);
     console.log('[API Request Interceptor] Token from localStorage:', token);
-    if (token) {
+
+    const publicApis = ['/df/search', '/auth/login', '/auth/signup', '/auth/reissue'];
+    const isPublicApi = publicApis.some(apiPath => config.url.startsWith(apiPath));
+
+    if (token && !isPublicApi) {
       config.headers['Authorization'] = `Bearer ${token}`;
-      console.log('[API Request Interceptor] Authorization header SET:', config.headers['Authorization']);
+      console.log('[API Request Interceptor] Authorization header SET for private API:', config.headers['Authorization']);
+    } else if (token && isPublicApi) {
+      console.log('[API Request Interceptor] Token found, but API is public. Authorization header NOT SET for:', config.url);
     } else {
       console.warn('[API Request Interceptor] No token found. Authorization header NOT SET.');
     }

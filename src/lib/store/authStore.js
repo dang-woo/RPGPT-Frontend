@@ -19,8 +19,8 @@ const useAuthStore = create((set, get) => ({
     try {
       const response = await apiClient.post('/auth/login', credentials);
       
-      // 변경된 백엔드 응답 구조에 맞춰 토큰 처리
-      if (response.data && response.data.token && response.data.token.accessToken) {
+      // 백엔드 응답에 success 필드가 있고, 해당 필드가 true이며, 토큰이 존재하는지 명확히 확인
+      if (response.data && response.data.success === true && response.data.token && response.data.token.accessToken) {
         localStorage.setItem(ACCESS_TOKEN_KEY, response.data.token.accessToken);
         
         if (response.data.token.refreshToken) {
@@ -32,16 +32,20 @@ const useAuthStore = create((set, get) => ({
         await get().fetchCurrentUser(true); 
         set({ isLoggingIn: false }); 
         // 로그인 성공 메시지는 response.data.message를 사용하거나 기본 메시지 사용
-        return { success: true, message: response.data.message || "로그인 성공" };
+        return { success: true, message: response.data.message || "로그인 되었습니다." }; // 성공 메시지 명확화
       } else {
-        // success 필드가 명시적으로 false로 오거나, token 객체가 없는 경우 등
-        const errorMessage = response.data?.message || '로그인에 실패했습니다. 응답 형식을 확인해주세요.';
+        // 로그인 실패 또는 응답 형식 오류
+        // 백엔드가 success: false 와 함께 message를 보내주는 경우 해당 메시지 사용
+        // 그렇지 않다면 일반적인 실패 메시지 사용
+        const errorMessage = response.data?.message || '아이디 또는 비밀번호가 올바르지 않거나, 서버 응답이 올바르지 않습니다.';
         set({ user: null, isLoggingIn: false, isLoading: false, error: errorMessage });
         throw new Error(errorMessage);
       }
     } catch (error) {
-      const message = error.response?.data?.message || error.message || '로그인 중 오류가 발생했습니다.';
+      // API 호출 자체에서 발생한 네트워크 오류 또는 위에서 throw된 에러
+      const message = error.response?.data?.message || error.message || '로그인 중 알 수 없는 오류가 발생했습니다.';
       set({ user: null, isLoggingIn: false, isLoading: false, error: message });
+      // 실패 시 토큰 제거는 이미 apiClient 응답 인터셉터에서 처리할 수도 있지만, 여기서도 확실히 제거
       localStorage.removeItem(ACCESS_TOKEN_KEY);
       localStorage.removeItem(REFRESH_TOKEN_KEY); 
       throw new Error(message);
