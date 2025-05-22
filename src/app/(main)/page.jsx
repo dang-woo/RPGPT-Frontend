@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import axios from "axios";
+// import axios from "axios"; // apiClient 사용으로 주석 처리
+import apiClient from "@/lib/apiClient"; // apiClient 임포트
 import { useRouter } from "next/navigation";
 import DnfCharacterCard from "@/components/dnf/DnfCharacterCard";
 import SearchForm from "@/components/search/SearchForm";
@@ -81,7 +82,8 @@ export default function MainPage() {
     setError(null);
 
     try {
-      const response = await axios.get("http://localhost:8080/api/df/search", {
+      // const response = await axios.get("http://localhost:8080/api/df/search", { // 기존 코드 주석 처리
+      const response = await apiClient.get("/df/search", { // apiClient 사용 및 상대 경로로 변경
         params: {
           server: searchServerId,
           name: searchCharacterName,
