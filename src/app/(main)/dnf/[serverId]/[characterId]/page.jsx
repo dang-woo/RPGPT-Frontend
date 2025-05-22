@@ -62,14 +62,16 @@ export default function CharacterDetailPage() {
   });
 
   useEffect(() => {
+    let initialCharacterName = null;
     const initialDetailsQuery = searchParams.get('details');
     if (initialDetailsQuery) {
       try {
         const parsedDetails = JSON.parse(initialDetailsQuery);
+        // 초기 로드 시 기본 정보만 임시로 설정 (이미지 깜빡임 방지 등)
         setCharacterDetails(prevDetails => ({
              ...prevDetails, 
              characterName: parsedDetails.characterName,
-             level: parsedDetails.level,
+             level: parsedDetails.level, // 기존 레벨 정보 (API 호출 후 덮어쓰일 수 있음)
              jobGrowName: parsedDetails.jobGrowName,
              serverId: parsedDetails.serverId,
              characterId: parsedDetails.characterId,
@@ -78,6 +80,8 @@ export default function CharacterDetailPage() {
              guildName: parsedDetails.guildName,
              fame: parsedDetails.fame,
         }));
+        initialCharacterName = parsedDetails.characterName; // /df/search에 사용할 캐릭터 이름
+        console.log("[DEBUG] Initial Character Name for search:", initialCharacterName); // DEBUG
       } catch (e) {
         console.error("Error parsing initial character details from query params:", e);
       }
@@ -92,22 +96,56 @@ export default function CharacterDetailPage() {
         }
         setLoading(true);
         setError(null);
-        setCharacterDetails(null);
 
         try {
-          const response = await apiClient.get(`/df/character?server=${serverId}&characterId=${characterId}`);
-          const characterData = response.data;
+          // 1. /df/character API 호출
+          console.log(`[DEBUG] Calling /df/character?server=${serverId}&characterId=${characterId}`);
+          const characterResponse = await apiClient.get(`/df/character?server=${serverId}&characterId=${characterId}`);
+          console.log("[DEBUG] /df/character API Response (characterResponse):", characterResponse);
 
-          if (!characterData) {
-            setError("캐릭터 정보를 불러오지 못했습니다.");
+          if (!characterResponse.data) {
+            setError("캐릭터 정보를 불러오지 못했습니다. (/df/character)");
             setLoading(false);
             return;
           }
 
-          setCharacterDetails(characterData);
+          let finalCharacterData = { ...characterResponse.data };
+          const characterNameFromDetails = characterResponse.data.characterName;
+
+          // 2. /df/character 응답에서 얻은 characterName으로 /df/search API 호출
+          if (characterNameFromDetails) {
+            const searchUrl = `/df/search?server=${serverId}&name=${encodeURIComponent(characterNameFromDetails)}&limit=1`;
+            console.log("[DEBUG] Calling /df/search with URL from character details:", searchUrl);
+            try {
+              const searchResponse = await apiClient.get(searchUrl);
+              console.log("[DEBUG] /df/search API Response (searchResponse):", searchResponse);
+
+              if (searchResponse && searchResponse.data && Array.isArray(searchResponse.data.rows) && searchResponse.data.rows.length > 0) {
+                const searchResultCharacter = searchResponse.data.rows[0];
+                console.log("[DEBUG] Extracted searchResultCharacter from /df/search:", searchResultCharacter);
+                if (searchResultCharacter && typeof searchResultCharacter.level !== 'undefined') {
+                  finalCharacterData.level = searchResultCharacter.level;
+                  console.log("[DEBUG] Level updated from /df/search:", finalCharacterData.level);
+                } else {
+                  console.log("[DEBUG] Level not found or undefined in searchResultCharacter (from .rows).");
+                }
+              } else {
+                console.log("[DEBUG] No results in .rows or malformed response from /df/search. searchResponse.data:", searchResponse?.data);
+              }
+            } catch (searchError) {
+              // /df/search 호출 실패는 전체 로직을 중단시키지 않고, 레벨 정보만 누락될 수 있도록 처리
+              console.error("[DEBUG] Error calling /df/search:", searchError);
+              // 필요하다면 setError를 통해 사용자에게 알릴 수도 있지만, 일단은 콘솔 에러로만 남김
+            }
+          } else {
+            console.warn("[DEBUG] Character name not available from /df/character response. Cannot call /df/search.");
+          }
+
+          
+          setCharacterDetails(finalCharacterData);
 
         } catch (err) {
-          console.error("캐릭터 상세 정보 조회 오류:", err);
+          console.error("캐릭터 상세 정보 조회 주 오류 (/df/character 또는 로직 에러):", err);
           let errorMessage = "캐릭터 정보를 불러오는 중 오류가 발생했습니다.";
           if (err.response?.data?.message) {
             errorMessage = err.response.data.message;
@@ -121,7 +159,7 @@ export default function CharacterDetailPage() {
       };
       fetchAllCharacterData();
     }
-  }, [serverId, characterId, searchParams]);
+  }, [serverId, characterId]); // searchParams 의존성 제거 (initialDetailsQuery는 참고용으로만 사용)
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -158,11 +196,23 @@ export default function CharacterDetailPage() {
     setRegistrationStatus({ loading: true, message: null, type: null });
 
     try {
+      // characterDetails에서 필요한 정보를 가져옵니다.
+      // /df/character 응답을 기준으로 payload를 구성해야 할 수 있습니다.
+      // 예를 들어, API 응답이 characterDetails.characterInfo.adventureName 와 같은 구조라면 수정 필요
       const payload = {
-        serverId: characterDetails.serverId,
+        serverId: characterDetails.serverId, 
+        characterId: characterDetails.characterId, // characterId도 보내야 할 수 있음 (백엔드 API 명세 확인)
         characterName: characterDetails.characterName,
+        jobGrowName: characterDetails.jobGrowName,
         adventureName: characterDetails.adventureName,
+        // fame: characterDetails.fame // 필요시 추가
       };
+      
+      // adventureName이 없을 경우의 처리 (API 응답 구조에 따라 다를 수 있음)
+      if (!payload.adventureName && characterDetails.characterInfo && characterDetails.characterInfo.adventureName) {
+        payload.adventureName = characterDetails.characterInfo.adventureName;
+      }
+
 
       if (!payload.adventureName) {
         setRegistrationStatus({
@@ -173,7 +223,9 @@ export default function CharacterDetailPage() {
         return;
       }
       
+      // 백엔드의 /characters 엔드포인트가 정확히 어떤 payload를 기대하는지 확인 필요
       const response = await apiClient.post("/characters", payload);
+
 
       if (response.data && response.data.success) {
         setRegistrationStatus({
@@ -198,7 +250,7 @@ export default function CharacterDetailPage() {
   };
 
   const renderContent = () => {
-    if (loading && !characterDetails) {
+    if (loading && !characterDetails?.characterName) { // characterName이라도 있어야 초기 로딩 화면 스킵 가능
       return (
         <div className="flex flex-col justify-center items-center min-h-[calc(100vh-15rem)] text-neutral-500 dark:text-neutral-300">
           <Loader2 className="w-12 h-12 animate-spin mb-4" />
@@ -207,7 +259,7 @@ export default function CharacterDetailPage() {
       );
     }
 
-    if (error && !characterDetails) {
+    if (error && !characterDetails?.characterName) {
       return (
         <div className="flex flex-col justify-center items-center min-h-[calc(100vh-15rem)] p-4 text-center">
           <AlertTriangle className="w-12 h-12 text-red-500 mb-4" />
@@ -222,7 +274,7 @@ export default function CharacterDetailPage() {
       );
     }
 
-    if (!characterDetails) {
+    if (!characterDetails?.characterName) { // characterName 기준으로 최종 fallback 처리
       return (
         <div className="flex flex-col justify-center items-center min-h-[calc(100vh-15rem)] p-4 text-center">
           <AlertTriangle className="w-12 h-12 text-orange-500 mb-4" />
@@ -239,13 +291,14 @@ export default function CharacterDetailPage() {
 
     const {
       equipment,
-      setItemInfo,
+      setItemInfo, // 이 prop은 characterDetails에 없을 것 같음. 확인 필요.
       avatar,
       creature,
       flag,
       talismans,
       skill,
-    } = characterDetails;
+      // characterName, level, jobGrowName 등은 characterDetails에서 직접 사용
+    } = characterDetails; // API 응답 구조에 따라 달라질 수 있음
     
     const currentServerName = serverNameMap[characterDetails.serverId] || characterDetails.serverId;
     const characterPrimaryImageUrl = characterDetails.imageUrl || `https://img-api.neople.co.kr/df/servers/${characterDetails.serverId}/characters/${characterDetails.characterId}?zoom=3`;
@@ -331,7 +384,7 @@ export default function CharacterDetailPage() {
         } 
         
         <div className="mt-4">
-          {activeTab === 'equipment' && equipment && <EquipmentSection equipment={equipment} setItemInfo={setItemInfo} />}
+          {activeTab === 'equipment' && equipment && <EquipmentSection equipment={equipment} setItemInfo={setItemInfo} serverId={characterDetails.serverId} characterId={characterDetails.characterId} />}
           {activeTab === 'avatar' && avatar && <AvatarSection avatar={avatar} />}
           {activeTab === 'skill' && skill?.style && <SkillSection skillStyle={skill.style} />}
           {activeTab === 'buffSkill' && skill?.buff && <BuffSkillSection buffSkillInfo={skill.buff} fullEquipmentList={equipment} />}
