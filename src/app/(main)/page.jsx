@@ -97,7 +97,7 @@ export default function MainPage() {
         addSearchToHistory(rows);
       }
     } catch (err) {
-      setError("검색 중 오류가 발생했습니다: " + (err.response?.data?.message || err.message));
+      setError("검색 중 오류가 발생했습니다: " + (err.response?.data?.error || err.message));
       setSearchResults([]);
     } finally {
       setLoading(false);
@@ -183,7 +183,7 @@ export default function MainPage() {
             <h2 className="text-3xl font-semibold mb-8 text-center">
               검색 결과
             </h2>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
               {searchResults.map((character) => (
                 <li key={`${character.serverId}-${character.characterId}`}>
                   <DnfCharacterCard 
@@ -203,7 +203,7 @@ export default function MainPage() {
 
         {!loading && searchResults.length === 0 && !error && characterName && (
           <div className="w-full mt-10 text-center text-neutral-500 dark:text-neutral-400">
-            \'{characterName}\'에 대한 검색 결과가 없습니다.
+           
           </div>
         )}
       </div>

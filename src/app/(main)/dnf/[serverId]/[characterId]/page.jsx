@@ -69,7 +69,7 @@ export default function CharacterDetailPage() {
     if (initialDetailsQuery) {
       try {
         const parsedDetails = JSON.parse(initialDetailsQuery);
-        initialCharacterName = parsedDetails.characterName; // 검색 API 호출에 사용
+        // initialCharacterName = parsedDetails.characterName; // 더 이상 초기 이름에 의존하지 않음
         // 초기 상태 설정은 유지하되, API 호출 후 덮어쓰여질 것임
         setCharacterDetails(prevDetails => ({
              ...prevDetails, 
@@ -94,46 +94,44 @@ export default function CharacterDetailPage() {
         setLoading(true);
         setError(null);
         try {
-          // 두 API를 동시에 호출
-          const [detailResponse, searchResponse] = await Promise.all([
-            axios.get(
-              `http://localhost:8080/api/df/character`,
-              { params: { server: serverId, characterId: characterId } }
-            ),
-            // 검색 API는 characterName으로 검색해야 하므로, 초기 정보에서 가져오거나 상세 API 응답 후 설정
-            // 여기서는 초기 쿼리 파라미터의 characterName을 사용하고, 없다면 characterId를 이름처럼 사용 (백엔드 지원 여부 확인 필요)
-            // 또는, 첫 API 응답 후 characterName을 얻어서 두 번째 호출을 하는 방법도 있으나, 동시 호출이 어려워짐
-            // 일단 initialCharacterName이 있다고 가정하고 진행
-            initialCharacterName ? 
-              axios.get(
-                `http://localhost:8080/api/df/search`,
-                { params: { server: serverId, name: initialCharacterName } }
-              ) : 
-              Promise.resolve(null) // initialCharacterName 없으면 search API 호출 안함 (또는 다른 대체 로직)
-          ]);
+          // 1. /api/df/character API 호출하여 기본 정보 및 characterName 가져오기
+          const detailResponse = await apiClient.get('/df/character', {
+            params: { server: serverId, characterId: characterId }
+          });
 
-          let finalDetails = detailResponse.data; // 상세 API 결과를 기본으로
+          let finalDetails = detailResponse.data;
+          const characterNameFromDetail = finalDetails?.characterName;
 
-          if (searchResponse && searchResponse.data && searchResponse.data.rows) {
-            const searchedCharacter = searchResponse.data.rows.find(
-              (char) => char.characterId === characterId
-            );
+          if (characterNameFromDetail) {
+            // 2. 얻어온 characterName으로 /api/df/search API 호출
+            try {
+              const searchResponse = await apiClient.get('/df/search', {
+                params: { server: serverId, name: characterNameFromDetail, limit: 1 }
+              });
 
-            if (searchedCharacter) {
-              // 상세 API 결과에 없는 정보만 검색 API 결과에서 가져와 병합
-              // (예시: 만약 상세 API에 level이 없다면 searchedCharacter.level 사용)
-              // 현재는 대부분의 정보가 상세 API에 있으므로, 필요한 경우 아래와 같이 특정 필드를 선택적으로 병합
-              finalDetails = {
-                ...searchedCharacter, // 검색 API 결과를 기본으로 깔고
-                ...finalDetails,      // 상세 API 결과로 덮어쓰기 (상세 정보 우선)
-                                      // 또는 특정 필드만 선택적 병합:
-                                      // level: finalDetails.level || searchedCharacter.level,
-                                      // jobGrowName: finalDetails.jobGrowName || searchedCharacter.jobGrowName,
-              };
+              if (searchResponse && searchResponse.data && searchResponse.data.rows && searchResponse.data.rows.length > 0) {
+                const searchedInfo = searchResponse.data.rows[0];
+                // 검색 결과를 상세 정보에 병합 (imageUrl 등)
+                finalDetails = {
+                  ...finalDetails,
+                  ...searchedInfo,
+                  imageUrl: searchedInfo.imageUrl || finalDetails.imageUrl,
+                };
+              } else {
+                console.warn(`/df/search API에서 ${characterNameFromDetail} (${serverId}) 에 대한 정보를 찾지 못했습니다.`);
+              }
+            } catch (searchError) {
+              // 검색 API 호출 실패는 전체를 중단시키지 않고, 콘솔에 오류만 기록할 수 있습니다.
+              // 또는 사용자에게 부분적인 정보만 로드되었음을 알릴 수도 있습니다.
+              console.error(`/df/search API 호출 오류 (${characterNameFromDetail}):`, searchError);
+              // 필요하다면 setError를 통해 사용자에게 알릴 수 있지만, 여기서는 일단 콘솔 로그만 남깁니다.
             }
+          } else {
+            console.warn(`/df/character API 응답에서 characterName을 찾을 수 없습니다. (${serverId}/${characterId})`);
+            // characterName이 없으면 검색 API를 호출할 수 없으므로, 여기서 추가적인 에러 처리를 할 수 있습니다.
+            // 예를 들어, setError("캐릭터 이름을 가져올 수 없어 추가 정보를 로드할 수 없습니다.");
           }
           
-          // 최종 병합된 데이터로 상태 업데이트
           setCharacterDetails(finalDetails);
 
         } catch (err) {
@@ -278,6 +276,9 @@ export default function CharacterDetailPage() {
     const characterPrimaryImageUrl = characterDetails.imageUrl || `https://img-api.neople.co.kr/df/servers/${characterDetails.serverId}/characters/${characterDetails.characterId}?zoom=3`;
     const fallbackImageUrl = "https://via.placeholder.com/300x400.png?text=Image+Not+Found";
 
+    // 사용자 등록 모험단 이름 (useAuthStore의 user 객체에서 가져옴, 실제 필드명 확인 필요)
+    const userRegisteredAdventureName = user?.adventureName;
+
     return (
       <>
         <div className="relative">
@@ -288,31 +289,50 @@ export default function CharacterDetailPage() {
             fallbackImageUrl={fallbackImageUrl}
           />
           {!authLoading && user && (
-            <div className="absolute top-4 right-4 flex flex-col items-end space-y-2">
-              <button
-                onClick={handleRegisterCharacter}
-                disabled={registrationStatus.loading || registrationStatus.type === 'success'}
-                className={`flex items-center px-4 py-2 text-sm font-semibold rounded-md shadow transition-colors text-white 
-                          ${registrationStatus.loading ? 'bg-gray-400 cursor-not-allowed' : 
-                           registrationStatus.type === 'success' ? 'bg-green-500 cursor-not-allowed' : 'bg-sky-600 hover:bg-sky-700'}`}
-              >
-                {registrationStatus.loading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : registrationStatus.type === 'success' ? (
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                ) : (
-                  <BookmarkPlus className="w-4 h-4 mr-2" />
-                )}
-                {registrationStatus.loading ? "등록 중..." : registrationStatus.type === 'success' ? "등록 완료" : "마이페이지에 등록"}
-              </button>
-              {registrationStatus.message && (
-                <div className={`p-2 rounded-md text-xs text-white 
-                               ${registrationStatus.type === 'success' ? 'bg-green-500' : 
-                                 registrationStatus.type === 'error' ? 'bg-red-500' : 'bg-blue-500'}`}>
-                  {registrationStatus.message}
+            // 버튼 표시 로직 시작
+            (() => {
+              // 현재 조회 중인 캐릭터의 모험단 이름
+              const viewingCharacterAdventureName = characterDetails?.adventureName;
+
+              // 조건 1: 사용자가 모험단을 등록했고, 현재 캐릭터의 모험단과 다른 경우 버튼 숨김
+              // (단, 현재 캐릭터의 모험단 정보가 있어야 비교 가능)
+              if (userRegisteredAdventureName && 
+                  viewingCharacterAdventureName && 
+                  userRegisteredAdventureName !== viewingCharacterAdventureName) {
+                return null; // 버튼을 렌더링하지 않음
+              }
+
+              // 조건 2: 그 외의 경우 (사용자가 모험단 등록 안 했거나, 모험단이 같거나, 캐릭터 모험단 정보 로딩 중이거나 없는 경우) 버튼 표시
+              return (
+                <div className="absolute top-4 right-4 flex flex-col items-end space-y-2">
+                  <button
+                    onClick={handleRegisterCharacter}
+                    disabled={registrationStatus.loading || registrationStatus.type === 'success'}
+                    className={`mypage-button flex items-center px-4 py-2 text-sm font-semibold rounded-md shadow transition-colors text-white 
+                              ${registrationStatus.loading ? 'bg-gray-400 cursor-not-allowed' : 
+                               registrationStatus.type === 'success' ? 'bg-green-500 cursor-not-allowed' : 
+                               registrationStatus.type === 'error' ? 'bg-red-500 cursor-not-allowed' : ''}`}
+                  >
+                    {registrationStatus.loading ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : registrationStatus.type === 'success' ? (
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                    ) : (
+                      <BookmarkPlus className="w-4 h-4 mr-2" />
+                    )}
+                    {registrationStatus.loading ? "등록 중..." : registrationStatus.type === 'success' ? "등록 완료" : "마이페이지에 등록"}
+                  </button>
+                  {registrationStatus.message && (
+                    <div className={`p-2 rounded-md text-xs text-white 
+                                   ${registrationStatus.type === 'success' ? 'bg-green-500' : 
+                                     registrationStatus.type === 'error' ? 'bg-red-500' : 'bg-blue-500'}`}>
+                      {registrationStatus.message}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              );
+            })()
+            // 버튼 표시 로직 끝
           )}
         </div>
 
@@ -360,7 +380,7 @@ export default function CharacterDetailPage() {
       <div className="max-w-6xl mx-auto p-4 sm:p-6 md:p-8">
         <button
             onClick={() => router.back()}
-            className="mb-6 px-4 py-2 text-sm font-semibold rounded-md shadow transition-colors text-white bg-sky-600 hover:bg-sky-700 mypage-button"
+            className="mypage-button mb-6 px-4 py-2 text-sm font-semibold rounded-md shadow transition-colors"
         >
             &larr; 이전 페이지로 돌아가기
         </button>
@@ -374,9 +394,9 @@ export default function CharacterDetailPage() {
                      bottom-20 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm h-[70vh] max-h-[calc(100vh-10rem)] \
                      md:inset-auto md:right-8 md:bottom-24 md:translate-x-0 md:translate-y-0 md:w-full md:max-w-md md:h-[80vh] md:max-h-[700px]"
         >
-          <div className="p-4 border-b dark:border-neutral-700 flex justify-between items-center">
+          <div className="p-4 border-b dark:border-neutral-700 flex justify-between items-center chat-modal-header">
             <h2 className="text-lg font-semibold">AI 채팅</h2>
-            <button onClick={toggleChat} className="text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200">&times;</button>
+            <button onClick={toggleChat} className="text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200 chat-modal-close-button">&times;</button>
           </div>
           <div className="flex-grow overflow-y-auto">
             <ChatInterface 

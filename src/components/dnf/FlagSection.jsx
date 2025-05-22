@@ -6,57 +6,61 @@ import { rarityColorMap } from "@/utils/dnfUtils";
 export default function FlagSection({ flag }) {
   if (!flag || !flag.itemName) {
     return (
-      <div className="mb-8 p-6 bg-white dark:bg-neutral-800 shadow-xl rounded-lg border border-neutral-200 dark:border-neutral-700">
-        <h2 className="text-2xl font-bold mb-4 text-[var(--link-accent-color)]">휘장</h2>
-        <p className="text-neutral-500 dark:text-neutral-400">장착된 휘장이 없습니다.</p>
+      <div className="section-box">
+        <h2 className="section-content-title text-2xl font-bold mb-4">휘장 정보</h2>
+        <p className="item-entry-text-secondary">장착된 휘장이 없습니다.</p>
       </div>
     );
   }
 
-  const flagRarityClass = rarityColorMap[flag.itemRarity] || 'text-neutral-800 dark:text-neutral-100';
+  const fallbackImageUrlOnError = "https://via.placeholder.com/60x60.png?text=No+Img";
+  const flagNameClass = rarityColorMap[flag.itemRarity] || 'item-name-default';
 
   return (
-    <div className="mb-8 p-6 bg-white dark:bg-neutral-800 shadow-xl rounded-lg border border-neutral-200 dark:border-neutral-700">
-      <h2 className="text-2xl font-bold mb-4 text-[var(--link-accent-color)]">휘장 정보</h2>
-      <div className="p-4 bg-neutral-50 dark:bg-neutral-700 rounded-md shadow-sm border border-neutral-200 dark:border-neutral-600">
-        <div className="mb-3">
-          <h3 className={`text-xl font-semibold ${flagRarityClass}`}>
-            {flag.itemName}
-          </h3>
-          {flag.reinforce > 0 && <p className="text-sm text-orange-500 dark:text-orange-400">강화: +{flag.reinforce}</p>}
-          {flag.reinforceStatus && flag.reinforceStatus.length > 0 && (
-            <div className="mt-1 text-xs text-neutral-600 dark:text-neutral-300">
-              <p className="font-medium">강화 효과:</p>
-              <ul className="list-disc list-inside ml-2 space-y-0.5">
-                {flag.reinforceStatus.map((status, idx) => (
-                  <li key={idx}>{status.name}: {status.value}</li>
+    <div className="section-box">
+      <h2 className="section-content-title text-2xl font-bold mb-6">휘장 정보</h2>
+      <div className="item-entry p-4 flex flex-col sm:flex-row items-center gap-4">
+        {flag.itemImage && (
+          <div className="relative w-20 h-20 item-image-placeholder rounded-md flex-shrink-0">
+            <Image 
+              // ... existing image props ...
+            />
+          </div>
+        )}
+        <div className="flex-grow text-center sm:text-left">
+          <h3 className={`text-xl font-semibold mb-1 ${flagNameClass}`}>{flag.itemName}</h3>
+          {flag.reinforceSkill && flag.reinforceSkill.length > 0 && (
+            <div className="mb-2">
+              <p className="text-sm font-medium item-entry-text-label">강화 스킬:</p>
+              {flag.reinforceSkill.map((skill, index) => (
+                <p key={index} className="text-xs item-entry-text-primary">
+                  {skill.name} +{skill.value}
+                </p>
+              ))}
+            </div>
+          )}
+          {flag.itemStatus && flag.itemStatus.length > 0 && (
+            <div className="mt-2 pt-2 item-entry-divider-top">
+              <p className="text-sm font-medium item-entry-text-label mb-1">휘장 스탯:</p>
+              <ul className="list-disc list-inside text-xs item-entry-text-secondary space-y-0.5 pl-2">
+                {flag.itemStatus.map((stat, i) => <li key={`flag-stat-${i}`}>{stat.name}: {stat.value}</li>)}
+              </ul>
+            </div>
+          )}
+          {/* 젬 정보 (존재한다면) */}
+          {flag.gems && flag.gems.length > 0 && (
+            <div className="mt-3 pt-3 item-entry-divider-top">
+              <h4 className="text-md font-semibold item-entry-text-label mb-1.5">젬:</h4>
+              <ul className="space-y-2">
+                {flag.gems.map((gem, idx) => (
+                  <li key={idx} className={`text-xs item-entry-text-primary p-2 rounded item-entry-bg-nested ${rarityColorMap[gem.itemRarity] || 'item-name-default'}`}>
+                    {gem.itemName} (슬롯 {gem.slotNo}) - {gem.itemAbility || '능력치 정보 없음'}
+                  </li>
                 ))}
               </ul>
             </div>
           )}
         </div>
-
-        {flag.gems && flag.gems.length > 0 ? (
-          <div className="mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-600">
-            <h4 className="text-lg font-semibold mb-3 text-neutral-700 dark:text-neutral-200">장착 젬</h4>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {flag.gems.map((gem, index) => {
-                const gemRarityClass = rarityColorMap[gem.itemRarity] || 'text-neutral-700 dark:text-neutral-300';
-                return (
-                  <li key={index} className="p-2.5 bg-neutral-100 dark:bg-neutral-600 rounded shadow-sm text-sm">
-                    <p className={`font-medium ${gemRarityClass}`}>
-                      {gem.itemName}
-                    </p>
-                    {/* API 응답에 젬 슬롯 번호나 옵션이 있다면 여기에 추가 */}
-                    {/* 예: gem.slotNo ? `${gem.slotNo}번 슬롯: ` : '' */} 
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ) : (
-          <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-3">장착된 젬이 없습니다.</p>
-        )}
       </div>
     </div>
   );

@@ -58,6 +58,23 @@
   --chat-send-button-disabled-bg: #d1d5db; /* Tailwind gray-300 */
   --chat-send-button-disabled-text: #9ca3af; /* Tailwind gray-400 */
   --chat-page-background: #f3f4f6; /* 연한 회색, Tailwind gray-100 */
+  --section-box-bg: var(--card-bg); /* 섹션 컨테이너 배경은 기존 카드 배경 활용 */
+  --section-box-border: var(--card-border-color); /* 섹션 컨테이너 테두리도 기존 카드 테두리 활용 */
+  --section-box-divider-border: #e5e7eb; /* 구분선 (라이트모드 기본) */
+  --section-toggle-text: var(--foreground);
+  --section-toggle-hover-bg: #f3f4f6; /* 라이트모드 기본 호버 */
+  --section-content-title-text: var(--foreground); /* 섹션 내 h2 제목 */
+  --item-entry-bg: #f9fafb; /* 아이템 리스트 배경 (라이트모드 기본) */
+  --item-entry-border: #e5e7eb; /* 아이템 리스트 테두리 (라이트모드 기본) */
+  --item-entry-text-primary: #1f2937; /* 주 텍스트 (라이트모드 기본) */
+  --item-entry-text-secondary: #4b5563; /* 보조 텍스트 (라이트모드 기본) */
+  --item-entry-text-label: #374151; /* 라벨 텍스트 (라이트모드 기본) */
+  --item-entry-divider-border: #e5e7eb; /* 아이템 내부 구분선 (라이트모드 기본) */
+  --item-name-default-color: var(--item-entry-text-primary);
+  --set-item-name-default-color: var(--item-entry-text-primary);
+  --item-image-placeholder-bg: var(--skeleton-bg); /* 기존 스켈레톤 배경 활용 */
+  --item-entry-bg-nested: #e9ecef; /* 라이트모드 기본 (더 밝은 회색) */
+  --input-focus-ring: #3b82f6; /* 포커스 링 색상 (라이트 모드 기본) */
 }
 
 /* HTML 요소 스타일 */
@@ -103,19 +120,76 @@ body.light {
   --link-accent-color: #0ea5e9; /* Sky Blue 계열 링크 */
   --skeleton-bg: #e5e7eb; /* 라이트모드 스켈레톤 배경 (밝은 회색) */
   --icon-sun-color: #f59e0b; /* 해 아이콘 색상 (주황색 계열) */
-  --icon-moon-color: #6366f1; /* 달 아이콘 색상 (남색 계열) */
+  --icon-moon-color: #2563eb; /* 달 아이콘 색상 (파란색 통일) - src/globals.css 값 */
   --mypage-title-text-color: #1f2937;
-  --mypage-button-bg: var(--main-button-bg); /* 파란색으로 복원 */
-  --mypage-button-hover-bg: var(--main-button-hover-bg); /* 파란색 호버로 복원 */
+  --mypage-button-bg: #2563eb; 
+  --mypage-button-hover-bg: #1d4ed8; /* 수정된 값 */
   --mypage-button-text-color: #ffffff;
-  --mypage-empty-state-bg: #f9fafb; /* Tailwind gray-50 */
-  --mypage-empty-state-border-color: #e5e7eb; /* Tailwind gray-200 */
-  --mypage-empty-state-icon-color: #9ca3af; /* Tailwind gray-400 */
-  --mypage-empty-state-title-color: #1f2937; /* Tailwind gray-800 */
-  --mypage-empty-state-text-color: #6b7280; /* Tailwind gray-500 */
-  --chat-message-user-bg: var(--main-button-bg); /* 사용자 메시지 버블 배경 */
-  --chat-send-button-bg: var(--main-button-bg); /* 전송 버튼 배경 */
-  --chat-send-button-hover-bg: var(--main-button-hover-bg); /* 전송 버튼 호버 배경 */
+  --mypage-empty-state-bg: #f9fafb; 
+  --mypage-empty-state-border-color: #e5e7eb; 
+  --mypage-empty-state-icon-color: #9ca3af; 
+  --mypage-empty-state-title-color: #1f2937; 
+  --mypage-empty-state-text-color: #6b7280; 
+  --chat-ui-container-bg: #ffffff; /* src/app/globals.css 의 기존값 유지 */
+  --chat-ui-container-border: #e5e7eb; /* src/app/globals.css 의 기존값 유지 */
+  --chat-message-user-bg: #2563eb; 
+  --chat-message-user-text: #ffffff; /* src/app/globals.css 의 기존값 유지 */
+  --chat-message-ai-bg: #f3f4f6; /* src/app/globals.css 의 기존값 유지 */
+  --chat-message-ai-text: #1f2937; /* src/app/globals.css 의 기존값 유지 */
+  --chat-greeting-title-text: #111827; /* src/app/globals.css 의 기존값 유지 */
+  --chat-greeting-subtitle-text: #4b5563; /* src/app/globals.css 의 기존값 유지 */
+  --chat-input-area-inner-bg: #f9fafb; /* src/app/globals.css 의 기존값 유지 */
+  --chat-input-area-border: #e5e7eb; /* src/app/globals.css 의 기존값 유지 */
+  --chat-textarea-text: #1f2937; /* src/app/globals.css 의 기존값 유지 */
+  --chat-textarea-placeholder: #9ca3af; /* src/app/globals.css 의 기존값 유지 */
+  --chat-send-button-bg: #2563eb; 
+  --chat-send-button-hover-bg: #2563eb; 
+  --chat-send-button-text: #ffffff; /* src/app/globals.css 의 기존값 유지 */
+  --chat-send-button-disabled-bg: #d1d5db; /* src/app/globals.css 의 기존값 유지 */
+  --chat-send-button-disabled-text: #9ca3af; /* src/app/globals.css 의 기존값 유지 */
+  --chat-page-background: #f3f4f6; /* src/app/globals.css 의 기존값 유지 */
+  --modal-bg: #ffffff; 
+  --modal-text-color: #1f2937; 
+  --input-bg: #f9fafb; 
+  --input-text: #1f2937; 
+  --input-border: #d1d5db; 
+  --list-item-hover-bg: #f3f4f6; 
+  --success-bg: #dcfce7; 
+  --success-border-color: #bbf7d0; 
+  --success-text-color: #166534; 
+  --error-bg: #fee2e2; 
+  --error-border-color: #fecaca; 
+  --error-text-color: #991b1b; 
+  --success-button-bg: #16a34a; 
+  --success-button-hover-bg: #15803d; 
+  --success-button-text-color: #ffffff; /* 성공 버튼 텍스트 색상 추가 */
+  --card-bg: #ffffff; 
+  --card-border-color: #07ffde; 
+  --card-text-color: #1f2937; 
+  --card-subtext-color: #6b7280; 
+  --floating-chat-button-bg: var(--main-button-bg); /* 플로팅 버튼 배경 */
+  --floating-chat-button-hover-bg: var(--main-button-hover-bg); /* 플로팅 버튼 호버 배경 */
+  --chat-modal-header-bg: #ffffff; /* 채팅 모달 헤더 배경 */
+  --chat-modal-header-border: #e5e7eb; /* 채팅 모달 헤더 테두리 */
+  --chat-modal-close-text: #6b7280; /* 채팅 모달 닫기 버튼 텍스트 */
+  --chat-modal-close-hover-text: #1f2937; /* 채팅 모달 닫기 버튼 호버 텍스트 */
+  --section-box-bg: #ffffff;
+  --section-box-border: #e5e7eb; /* Tailwind gray-200 */
+  --section-box-divider-border: #e5e7eb; /* Tailwind gray-200 */
+  --section-toggle-text: #374151; /* Tailwind gray-700 */
+  --section-toggle-hover-bg: #f3f4f6; /* Tailwind gray-100 */
+  --section-content-title-text: #111827; /* Tailwind gray-900 */
+  --item-entry-bg: #f9fafb; /* Tailwind gray-50 */
+  --item-entry-border: #e5e7eb; /* Tailwind gray-200 */
+  --item-entry-text-primary: #1f2937; /* Tailwind gray-800 */
+  --item-entry-text-secondary: #4b5563; /* Tailwind gray-600 */
+  --item-entry-text-label: #374151; /* Tailwind gray-700 */
+  --item-entry-divider-border: #e5e7eb; /* Tailwind gray-200 */
+  --item-name-default-color: var(--item-entry-text-primary);
+  --set-item-name-default-color: var(--item-entry-text-primary);
+  --item-image-placeholder-bg: var(--skeleton-bg);
+  --item-entry-bg-nested: #f8f9fa; /* 예: Tailwind gray-50보다 더 밝은 회색 */
+  --input-focus-ring: #3b82f6; /* 포커스 링 색상 (라이트 모드) */
 }
 
 /* 다크 모드 스타일 */
@@ -124,27 +198,94 @@ body.dark {
   --foreground: #e0e0e0;
   --main-button-bg: #d10fa7; /* 다크모드 주 버튼 (마젠타) */
   --main-button-hover-bg: #b90e92;
-  --chat-ui-container-bg: #1f2937; /* Tailwind gray-800 */
-  --chat-ui-container-border: #374151; /* Tailwind gray-700 */
-  --chat-message-user-bg: var(--main-button-bg); /* 다크모드 main-button-bg (마젠타) */
-  --chat-message-user-text: #ffffff;
-  --chat-message-ai-bg: #374151; /* Tailwind gray-700 */
-  --chat-message-ai-text: #e5e7eb; /* Tailwind gray-200 */
-  --chat-greeting-title-text: #f9fafb;
-  --chat-greeting-subtitle-text: #d1d5db;
-  --chat-input-area-inner-bg: #1f2937; /* Tailwind gray-800, 약간 어둡게 */
-  --chat-input-area-border: #4b5563; /* Tailwind gray-600 */
-  --chat-textarea-text: #f3f4f8;
-  --chat-textarea-placeholder: #9ca3af;
-  --chat-send-button-bg: var(--main-button-bg);
-  --chat-send-button-hover-bg: var(--main-button-hover-bg);
-  --chat-send-button-text: #ffffff;
-  --chat-send-button-disabled-bg: #4b5563; /* Tailwind gray-600 */
-  --chat-send-button-disabled-text: #9ca3af; /* Tailwind gray-400 */
-  --chat-page-background: #111827; /* 짙은 회색, Tailwind gray-900 */
-  --mypage-empty-state-border-color: #374151; /* Tailwind gray-700 */
-  --mypage-empty-state-title-color: #d1d5db; /* Tailwind gray-300 */
-  --mypage-empty-state-text-color: #9ca3af; /* Tailwind gray-400 */
+  --nav-bg: #121212; /* src/app/globals.css 의 기존값 유지 */
+  --nav-border: #2d2d2d; /* src/app/globals.css 의 기존값 유지 */
+  --nav-text: #e0e0e0; /* src/app/globals.css 의 기존값 유지 */
+  --nav-button-text: #d1d5db; /* src/app/globals.css 의 기존값 유지 */
+  --nav-button-hover-bg: #1f2937; /* src/app/globals.css 의 기존값 유지 */
+  --nav-button-hover-text: #f9fafb; /* src/app/globals.css 의 기존값 유지 */
+  --search-border: #2d2d2d; /* src/app/globals.css 의 기존값 유지 */
+  --search-bg: #2d2d2d; /* src/app/globals.css 의 기존값 유지 */
+  --search-text: #e0e0e0; /* src/app/globals.css 의 기존값 유지 */
+  --search-placeholder: #9ca3af; /* src/app/globals.css 의 기존값 유지 */
+  --search-icon: #9ca3af; /* src/app/globals.css 의 기존값 유지 */
+  --sidebar-bg: #18181b; /* src/app/globals.css 의 기존값 유지 */
+  --sidebar-text: #e0e0e0; /* src/app/globals.css 의 기존값 유지 */
+  --sidebar-hover: #27272a; /* src/app/globals.css 의 기존값 유지 */
+  --overlay-bg: rgba(0, 0, 0, 0.5); /* src/app/globals.css 의 기존값 유지 */
+  --link-accent-color: #d10fa7; /* src/app/globals.css 의 기존값 유지 */
+  --skeleton-bg: #2d2d2d; /* src/app/globals.css 의 기존값 유지 */
+  --icon-sun-color: #facc15; /* src/app/globals.css 의 기존값 유지 */
+  --icon-moon-color: #d10fa7; /* src/globals.css 값 (핑크 통일) */
+  --mypage-title-text-color: var(--foreground); /* src/app/globals.css 의 기존값과 동일 */
+  --mypage-button-bg: #d10fa7; 
+  --mypage-button-hover-bg: #b90e92; /* 수정된 값 */
+  --mypage-button-text-color: #ffffff; /* src/app/globals.css 의 기존값과 동일 */
+  --mypage-empty-state-bg: #1f2937; /* 다크모드에 맞게 조정 */
+  --mypage-empty-state-border-color: #374151; 
+  --mypage-empty-state-icon-color: #9ca3af; /* src/app/globals.css 의 기존값 유지 */
+  --mypage-empty-state-title-color: #d1d5db; 
+  --mypage-empty-state-text-color: #9ca3af; 
+  --chat-ui-container-bg: #1f2937; 
+  --chat-ui-container-border: #374151; 
+  --chat-message-user-bg: #d10fa7; 
+  --chat-message-user-text: #ffffff; 
+  --chat-message-ai-bg: #374151; 
+  --chat-message-ai-text: #e5e7eb; 
+  --chat-greeting-title-text: #f9fafb; 
+  --chat-greeting-subtitle-text: #d1d5db; 
+  --chat-input-area-inner-bg: #1f2937; /* 채팅 입력창 내부 배경 */
+  --chat-input-area-border: #4b5563; /* 채팅 입력창 테두리 */
+  --chat-textarea-text: #f3f4f8; /* 채팅 입력창 텍스트 */
+  --chat-textarea-placeholder: #9ca3af; /* 채팅 입력창 플레이스홀더 */
+  --chat-send-button-bg: #d10fa7; /* 채팅 전송 버튼 배경 */
+  --chat-send-button-hover-bg: #b90e92; /* 채팅 전송 버튼 호버 배경 */
+  --chat-send-button-text: #ffffff; /* 채팅 전송 버튼 텍스트 */
+  --chat-send-button-disabled-bg: #4b5563; /* 비활성 채팅 전송 버튼 배경 */
+  --chat-send-button-disabled-text: #9ca3af; /* 비활성 채팅 전송 버튼 텍스트 */
+  --chat-page-background: #111827; /* 채팅 페이지 전체 배경 */
+  --modal-bg: #1f2937; 
+  --modal-text-color: #f9fafb; 
+  --input-bg: #374151; 
+  --input-text: #f9fafb; 
+  --input-border: #4b5563; 
+  --list-item-hover-bg: #374151; 
+  --success-bg: #14532d; 
+  --success-border-color: #15803d; 
+  --success-text-color: #dcfce7; 
+  --error-bg: #7f1d1d; 
+  --error-border-color: #b91c1c; 
+  --error-text-color: #fee2e2; 
+  --success-button-bg: #22c55e; 
+  --success-button-hover-bg: #16a34a; 
+  --success-button-text-color: #ffffff; /* 성공 버튼 텍스트 색상 추가 */
+  --card-bg: #18181b; 
+  --card-border-color: #2d2d2d; 
+  --card-text-color: #e0e0e0; 
+  --card-subtext-color: #9ca3af; 
+  --floating-chat-button-bg: var(--main-button-bg); /* 플로팅 버튼 배경 */
+  --floating-chat-button-hover-bg: var(--main-button-hover-bg); /* 플로팅 버튼 호버 배경 */
+  --chat-modal-header-bg: #1f2937; /* 채팅 모달 헤더 배경 */
+  --chat-modal-header-border: #374151; /* 채팅 모달 헤더 테두리 */
+  --chat-modal-close-text: #9ca3af; /* 채팅 모달 닫기 버튼 텍스트 */
+  --chat-modal-close-hover-text: #e0e0e0; /* 채팅 모달 닫기 버튼 호버 텍스트 */
+  --section-box-bg: #1f2937; /* Tailwind gray-800 (예시, 기존 --card-bg-dark 와 유사하게) */
+  --section-box-border: #374151; /* Tailwind gray-700 */
+  --section-box-divider-border: #374151; /* Tailwind gray-700 */
+  --section-toggle-text: #d1d5db; /* Tailwind gray-300 */
+  --section-toggle-hover-bg: #374151; /* Tailwind gray-700 */
+  --section-content-title-text: #f3f4f8; /* Tailwind gray-100 */
+  --item-entry-bg: #2d3748; /* 어두운 회색 계열 (예: Tailwind gray-800 또는 700) */
+  --item-entry-border: #4a5568; /* Tailwind gray-600 또는 700 */
+  --item-entry-text-primary: #e2e8f0; /* 밝은 회색 (Tailwind gray-200) */
+  --item-entry-text-secondary: #a0aec0; /* 중간 회색 (Tailwind gray-400) */
+  --item-entry-text-label: #cbd5e0; /* Tailwind gray-300 */
+  --item-entry-divider-border: #4a5568; /* Tailwind gray-600 또는 700 */
+  --item-name-default-color: var(--item-entry-text-primary);
+  --set-item-name-default-color: var(--item-entry-text-primary);
+  --item-image-placeholder-bg: var(--skeleton-bg);
+  --item-entry-bg-nested: #343a40; /* 예: item-entry-bg보다 약간 더 어두운 회색 */
+  --input-focus-ring: #60a5fa; /* 포커스 링 색상 (다크 모드) */
 }
 
 /* 네비게이션 헤더 스타일 */
@@ -223,12 +364,15 @@ body.dark {
 @layer components {
   /* 마이페이지 버튼 스타일 */
   .mypage-button {
-    @apply px-4 py-2 font-semibold rounded-md transition-colors;
+    @apply px-4 py-2 font-semibold rounded-md shadow-md hover:shadow-lg hover:-translate-y-px transition-all duration-150 ease-in-out;
     background-color: var(--mypage-button-bg);
     color: var(--mypage-button-text-color);
   }
   .mypage-button:hover {
     background-color: var(--mypage-button-hover-bg);
+  }
+  .mypage-button:active {
+    @apply shadow-sm translate-y-0;
   }
 
   /* 채팅 UI 스타일 클래스 시작 */
@@ -326,11 +470,120 @@ body.dark {
     background-color: var(--chat-send-button-hover-bg);
   }
   .chat-input-button-disabled {
-    background-color: var(--chat-send-button-disabled-bg);
-    color: var(--chat-send-button-disabled-text);
+    background-color: var(--chat-send-button-disabled-bg) !important;
+    color: var(--chat-send-button-disabled-text) !important;
     @apply cursor-not-allowed;
   }
   /* 채팅 UI 스타일 클래스 끝 */
+
+  /* 캐릭터 카드 기본 스타일 */
+  .character-card-base {
+    @apply rounded-lg shadow-lg overflow-hidden transform transition-all flex flex-col;
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border-color);
+  }
+  .character-card-base:hover {
+    @apply scale-105 shadow-xl;
+    border-width: 2px;
+    border-color: var(--main-button-bg);
+  }
+  .character-card-image-bg {
+    background-color: var(--skeleton-bg);
+  }
+
+  /* src/globals.css 에서 가져온 .form-input */
+  .form-input {
+    @apply w-full px-3 py-2 rounded-md shadow-sm;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    border: 1px solid var(--input-border);
+  }
+  .form-input:focus {
+    @apply outline-none ring-2;
+    border-color: var(--input-focus-ring);
+    ring-color: var(--input-focus-ring);
+  }
+
+  /* src/globals.css 에서 가져온 .button-success */
+  .button-success {
+    @apply px-3 py-1.5 text-xs font-medium rounded-md shadow-md hover:shadow-lg hover:-translate-y-px transition-all duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap;
+    background-color: var(--success-button-bg);
+    color: var(--success-button-text-color);
+  }
+  .button-success:hover {
+    background-color: var(--success-button-hover-bg);
+  }
+  .button-success:active {
+    @apply shadow-sm translate-y-0;
+  }
+
+  /* 플로팅 채팅 버튼 스타일 */
+  .floating-chat-button {
+    background-color: var(--floating-chat-button-bg);
+  }
+  .floating-chat-button:hover {
+    background-color: var(--floating-chat-button-hover-bg);
+  }
+
+  /* 장비 및 세트 아이템 섹션 공통 스타일 */
+  .section-box {
+    @apply p-6 shadow-xl rounded-lg;
+    background-color: var(--section-box-bg);
+    border: 1px solid var(--section-box-border);
+  }
+  .section-box-divider {
+    border-bottom: 1px solid var(--section-box-divider-border);
+  }
+  .section-toggle {
+    color: var(--section-toggle-text);
+  }
+  .section-toggle:hover {
+    background-color: var(--section-toggle-hover-bg);
+  }
+  .section-content-title {
+    color: var(--section-content-title-text);
+    /* 기존 text-[var(--link-accent-color)] 효과를 유지하고 싶다면, 해당 변수를 사용하거나, 
+       새로운 변수 --section-content-title-accent-text 등을 만들어 사용할 수 있습니다. 
+       여기서는 일단 기본 텍스트 색상으로 통일합니다. */
+  }
+
+  /* 아이템 리스트 항목 스타일 */
+  .item-entry {
+    @apply p-4 rounded-md shadow-sm;
+    background-color: var(--item-entry-bg);
+    border: 1px solid var(--item-entry-border);
+  }
+  .item-entry-divider {
+    /* 아이템 리스트 내부에서 li 요소 간의 구분선이 필요한 경우 사용 */
+    /* border-bottom: 1px solid var(--item-entry-divider-border); */
+  }
+  .item-entry-divider-top {
+    border-top: 1px solid var(--item-entry-divider-border);
+  }
+  .item-entry-text-primary {
+    color: var(--item-entry-text-primary);
+  }
+  .item-entry-text-secondary {
+    color: var(--item-entry-text-secondary);
+  }
+  .item-entry-text-label {
+    color: var(--item-entry-text-label);
+  }
+  .item-name-default {
+    color: var(--item-name-default-color);
+  }
+  .set-item-name-default {
+    color: var(--set-item-name-default-color);
+  }
+  .item-image-placeholder {
+    background-color: var(--item-image-placeholder-bg);
+  }
+  .item-entry-bg-nested {
+    background-color: var(--item-entry-bg-nested, var(--item-entry-bg)); /* 기본값으로 item-entry-bg 사용 */
+  }
 }
 
 /* 마이페이지 빈 상태 스타일 */
@@ -435,4 +688,29 @@ body.dark {
 /* 채팅 페이지 전체 배경 스타일 */
 .chat-page-background {
   /* background-color: var(--chat-page-background); */
+}
+
+/* 모달 콘텐츠 영역: 투명하지 않은 배경 보장 */
+.modal-content-area {
+  background-color: var(--modal-bg) !important; /* 모달 배경색 (투명 방지) */
+  color: var(--modal-text-color);
+  border-radius: 0.5rem; 
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); 
+  opacity: 1 !important; /* 투명도 100%로 설정 */
+}
+
+/* src/globals.css 에서 가져온 .search-result-item */
+
+/* 채팅 모달 스타일 */
+.chat-modal-header {
+  background-color: var(--chat-modal-header-bg);
+  border-bottom-color: var(--chat-modal-header-border);
+}
+
+.chat-modal-close-button {
+  color: var(--chat-modal-close-text);
+}
+
+.chat-modal-close-button:hover {
+  color: var(--chat-modal-close-hover-text);
 }

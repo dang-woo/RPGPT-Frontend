@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { rarityColorMap } from "@/utils/dnfUtils"; // 스타일링 위해 추가
+import Image from 'next/image';
 
 // 각 장비/아바타/크리쳐 아이템을 표시하는 작은 컴포넌트
 const BuffItemDisplay = ({ item, type }) => {
@@ -39,14 +40,15 @@ const BuffItemDisplay = ({ item, type }) => {
 export default function BuffSkillSection({ buffSkillInfo }) {
   if (!buffSkillInfo || !buffSkillInfo.skillInfo) {
     return (
-      <div className="mb-8 p-6 bg-white dark:bg-neutral-800 shadow-xl rounded-lg border border-neutral-200 dark:border-neutral-700">
-        <h2 className="text-2xl font-bold mb-4 text-[var(--link-accent-color)]">버프 강화 정보</h2>
-        <p className="text-neutral-500 dark:text-neutral-400">버프 강화 정보가 없습니다.</p>
+      <div className="section-box">
+        <h2 className="section-content-title text-2xl font-bold mb-4">버프 강화 정보</h2>
+        <p className="item-entry-text-secondary">표시할 버프 강화 정보가 없습니다.</p>
       </div>
     );
   }
 
   const { skillInfo, equipment, avatar, creature } = buffSkillInfo;
+  const fallbackImageUrlOnError = "https://via.placeholder.com/40x40.png?text=No+Img";
 
   // skillInfo.option.desc의 플레이스홀더를 실제 값으로 대체
   let skillDesc = skillInfo.option?.desc || "";
@@ -57,23 +59,47 @@ export default function BuffSkillSection({ buffSkillInfo }) {
   }
 
   return (
-    <div className="mb-8 p-6 bg-white dark:bg-neutral-800 shadow-xl rounded-lg border border-neutral-200 dark:border-neutral-700">
-      <h2 className="text-2xl font-bold mb-6 text-[var(--link-accent-color)]">버프 강화 정보</h2>
+    <div className="section-box">
+      <h2 className="section-content-title text-2xl font-bold mb-6">버프 강화 정보</h2>
 
-      {/* 기본 버프 스킬 정보 */} 
-      <div className="mb-6 p-4 bg-sky-50 dark:bg-sky-900/30 rounded-lg border border-sky-200 dark:border-sky-700">
-        <h3 className="text-xl font-semibold text-sky-700 dark:text-sky-300 mb-2">{skillInfo.name || "스킬 이름 없음"}</h3>
-        {skillInfo.option?.level && <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-1">적용 스킬 레벨: {skillInfo.option.level}</p>}
-        {skillDesc && <p className="text-sm whitespace-pre-line text-neutral-700 dark:text-neutral-200">{skillDesc}</p>}
-      </div>
+      {skillInfo && (
+        <div className="mb-6 item-entry p-4">
+          <h3 className="text-lg font-semibold item-entry-text-primary mb-2">버프 스킬: {skillInfo.name || '이름 없음'}</h3>
+          <p className="text-sm item-entry-text-secondary">스킬 레벨: {skillInfo.level || '-'}</p>
+          {skillInfo.option && skillInfo.option.desc && (
+            <p className="text-sm item-entry-text-secondary mt-1">
+              효과: {skillInfo.option.desc} (값: {skillInfo.option.value})
+            </p>
+          )}
+          {/* skillInfo.option.values 같은 배열 데이터가 있다면 추가적으로 표시 가능 */}
+        </div>
+      )}
 
-      {/* 장착 장비 */} 
       {equipment && equipment.length > 0 && (
-        <div className="mb-6">
-          <h4 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100 mb-3">관련 장비</h4>
-          <ul className="space-y-3">
-            {equipment.map((item, index) => <BuffItemDisplay key={`equip-${index}`} item={item} type="equipment" />)}
-          </ul>
+        <div>
+          <h3 className="text-lg font-semibold item-entry-text-label mb-3">버프 장비:</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {equipment.map((item) => {
+              const itemNameClass = rarityColorMap[item.itemRarity] || 'item-name-default';
+              return (
+                <div key={item.itemId || item.itemName} className="item-entry p-3">
+                  <div className="flex items-center gap-3">
+                    {item.itemImage && (
+                      <div className="relative w-10 h-10 item-image-placeholder rounded">
+                        <Image 
+                          // ... existing image props ...
+                        />
+                      </div>
+                    )}
+                    <div className="flex-grow">
+                      <p className={`text-sm font-medium truncate ${itemNameClass}`} title={item.itemName}>{item.itemName}</p>
+                      <p className="text-xs item-entry-text-secondary">{item.slotName || '슬롯 정보 없음'}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 

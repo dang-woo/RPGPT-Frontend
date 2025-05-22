@@ -29,6 +29,7 @@ export default function RegisterCharacterPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
+    const [registeredCharacterId, setRegisteredCharacterId] = useState(null); // 새로 등록된 캐릭터 ID 상태 추가
     const router = useRouter();
 
     // 직접 등록 방식으로 변경되어 기존 handleSearch 함수 불필요
@@ -43,6 +44,7 @@ export default function RegisterCharacterPage() {
         setLoading(true);
         setError(null);
         setSuccessMessage(null);
+        setRegisteredCharacterId(null); // 이전 등록 ID 초기화
 
         try {
             const payload = {
@@ -55,6 +57,7 @@ export default function RegisterCharacterPage() {
 
             if (response.data && response.data.success) {
                 setSuccessMessage(response.data.message || "캐릭터가 성공적으로 등록되었습니다.");
+                setRegisteredCharacterId(response.data.characterId); // characterId 상태 업데이트
                 // 성공 후 폼 초기화 또는 페이지 이동
                 setServerId("cain");
                 setAdventureName("");
@@ -146,7 +149,7 @@ export default function RegisterCharacterPage() {
                 )}
                 {successMessage && (
                     <div className="mt-6 p-3 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-300 dark:border-green-700 rounded-md text-center text-sm w-full max-w-lg mx-auto">
-                        {successMessage} (캐릭터 ID: {response.data?.characterId}) {/* 백엔드 응답에 따라 characterId 등을 표시할 수 있습니다. */}
+                        {successMessage} {registeredCharacterId && `(캐릭터 ID: ${registeredCharacterId})`}
                     </div>
                 )}
 
