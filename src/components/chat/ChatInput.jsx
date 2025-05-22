@@ -12,7 +12,7 @@ export default function ChatInput({
   inputRef, // textarea에 focus하기 위해 추가
   currentCharacterDetails // 빠른 정보 전달을 위해 추가
 }) {
-  const { addMessage, setIsLoadingAiResponse: storeSetIsLoadingAiResponse, setInputValue: storeSetInputValue } = useChatStore();
+  const { addMessage, setIsLoadingAiResponse: storeSetIsLoadingAiResponse, setInputValue: storeSetInputValue, conversationCount } = useChatStore();
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -21,10 +21,11 @@ export default function ChatInput({
     }
   };
 
-  const canSendMessage = inputValue.trim() !== "" && !isLoadingAiResponse;
+  const canSendMessage = inputValue.trim() !== "" && !isLoadingAiResponse && conversationCount < 5;
+  const isMaxConversationReached = conversationCount >= 5;
 
   const handleQuickInfoSend = (type) => {
-    if (!currentCharacterDetails || isLoadingAiResponse) return;
+    if (!currentCharacterDetails || isLoadingAiResponse || isMaxConversationReached) return;
 
     let quickInfoText = "";
     let logTextPrefix = "";
@@ -91,13 +92,13 @@ export default function ChatInput({
 
   return (
     <div className="chat-input-container">
-      {currentCharacterDetails && (
+      {currentCharacterDetails && !isMaxConversationReached && (
         <div className="flex items-center justify-center space-x-2 mb-2 px-2 flex-wrap gap-y-2">
           {quickButtons.map(btn => (
             <button
               key={btn.type}
               onClick={() => handleQuickInfoSend(btn.type)}
-              disabled={isLoadingAiResponse}
+              disabled={isLoadingAiResponse || isMaxConversationReached}
               className="p-2 bg-sky-500 hover:bg-sky-600 text-white text-xs rounded-full shadow-sm disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-150 ease-in-out whitespace-nowrap min-w-[3rem] h-8 flex items-center justify-center"
               title={`${btn.label} 정보 빠르게 질문`}
             >
@@ -112,9 +113,10 @@ export default function ChatInput({
           value={inputValue}
           onChange={onInputChange}
           onKeyPress={handleKeyPress}
-          placeholder={isGreetingActive ? "무엇을 알고 싶으세요?" : "AI에게 메시지 보내기..."}
+          placeholder={isGreetingActive ? "무엇을 알고 싶으세요?" : (isMaxConversationReached ? "대화 횟수 5회를 모두 사용했습니다." : "AI에게 메시지 보내기...")}
           className="chat-input-textarea"
           rows={2}
+          disabled={isMaxConversationReached || isLoadingAiResponse}
         />
         <button
           onClick={onSendMessage}
@@ -132,6 +134,11 @@ export default function ChatInput({
           )}
         </button>
       </div>
+      {isMaxConversationReached && (
+        <p className="text-xs text-center text-red-500 dark:text-red-400 mt-1.5 px-2">
+          AI와의 대화는 최대 5회까지 가능합니다. 이전 대화가 자동으로 삭제되며, 새로운 대화를 시작할 수 있습니다.
+        </p>
+      )}
     </div>
   );
 } 

@@ -22,6 +22,8 @@ export default function ChatInterface({ initialContextText = "", isModalMode = f
     setInputValue,
     setIsLoadingAiResponse,
     initializeGreeting,
+    conversationCount,
+    deleteChatHistoryAndNotify
   } = useChatStore();
 
   const messagesEndRef = useRef(null);
@@ -40,6 +42,15 @@ export default function ChatInterface({ initialContextText = "", isModalMode = f
     initializeGreeting(greetingText);
 
   }, [user, initialContextText, initializeGreeting]);
+
+  useEffect(() => {
+    if (conversationCount >= 5) {
+      const timer = setTimeout(() => {
+        deleteChatHistoryAndNotify("AI와의 대화는 최대 5회까지 가능합니다. 이전 대화가 삭제되었으니 새로 시작해주세요.");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [conversationCount, deleteChatHistoryAndNotify]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -65,6 +76,15 @@ export default function ChatInterface({ initialContextText = "", isModalMode = f
     const userMessageText = inputValue.trim();
     if (userMessageText === "" || isLoadingAiResponse) return;
 
+    if (conversationCount >= 5) {
+      addMessage({
+        id: Date.now().toString() + '-ai-limit-send',
+        text: "대화 횟수 5회를 초과하여 메시지를 보낼 수 없습니다.",
+        sender: "ai",
+      });
+      return;
+    }
+
     const newUserMessage = {
       id: Date.now().toString() + '-user',
       text: userMessageText,
@@ -84,6 +104,8 @@ export default function ChatInterface({ initialContextText = "", isModalMode = f
       addMessage(aiResponse);
       setIsLoadingAiResponse(false);
     }, 1500);
+
+    useChatStore.getState().sendChatMessageToApi(userMessageText);
   };
 
   const isGreetingActive = messages.length === 1 && messages[0].isGreeting;
