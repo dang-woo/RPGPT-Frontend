@@ -1,90 +1,137 @@
 import { create } from 'zustand';
-import apiClient from '../apiClient'; // apiClient 경로 수정
+import apiClient from '../apiClient'; // apiClient 경로 유지
+
+// localStorage 키 정의
+const ACCESS_TOKEN_KEY = 'accessToken';
+const REFRESH_TOKEN_KEY = 'refreshToken';
 
 const useAuthStore = create((set, get) => ({
   user: null, // 현재 로그인된 사용자 정보 (예: { userId: 'test', nickname: '테스트' })
-  isLoading: true, // 사용자 정보 로딩 상태 (초기값 true로 변경)
+  isLoading: true, // 사용자 정보 로딩 상태 (초기값 true)
+  isLoggingIn: false, // 로그인 요청 진행 상태
+  isSigningUp: false, // 회원가입 요청 진행 상태
+  isFetchingCurrentUser: false, // 현재 유저 정보 요청 상태
+  error: null, // 에러 상태 추가
 
   // 로그인 액션
   login: async (credentials) => {
-    set({ isLoading: true }); // 요청 시작 시 로딩 상태 true
+    set({ isLoggingIn: true, isLoading: true, error: null });
     try {
       const response = await apiClient.post('/auth/login', credentials);
-      if (response.data && response.data.success) {
-        set({ user: { userId: response.data.userId, nickname: response.data.nickname }, isLoading: false });
-        return response.data;
+      
+      // 변경된 백엔드 응답 구조에 맞춰 토큰 처리
+      if (response.data && response.data.token && response.data.token.accessToken) {
+        localStorage.setItem(ACCESS_TOKEN_KEY, response.data.token.accessToken);
+        
+        if (response.data.token.refreshToken) {
+          localStorage.setItem(REFRESH_TOKEN_KEY, response.data.token.refreshToken);
+        } else {
+          console.warn('Refresh token not found in login response. Token refresh may not work.');
+        }
+        
+        await get().fetchCurrentUser(true); 
+        set({ isLoggingIn: false }); 
+        // 로그인 성공 메시지는 response.data.message를 사용하거나 기본 메시지 사용
+        return { success: true, message: response.data.message || "로그인 성공" };
       } else {
-        set({ user: null, isLoading: false });
-        throw new Error(response.data?.message || '로그인에 실패했습니다. 아이디 또는 비밀번호를 확인해주세요.');
+        // success 필드가 명시적으로 false로 오거나, token 객체가 없는 경우 등
+        const errorMessage = response.data?.message || '로그인에 실패했습니다. 응답 형식을 확인해주세요.';
+        set({ user: null, isLoggingIn: false, isLoading: false, error: errorMessage });
+        throw new Error(errorMessage);
       }
     } catch (error) {
-      set({ user: null, isLoading: false });
-      // error.response?.data?.message 가 있으면 그걸 쓰고, 없으면 error.message, 그것도 없으면 기본 메시지
       const message = error.response?.data?.message || error.message || '로그인 중 오류가 발생했습니다.';
+      set({ user: null, isLoggingIn: false, isLoading: false, error: message });
+      localStorage.removeItem(ACCESS_TOKEN_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY); 
       throw new Error(message);
     }
   },
 
   // 로그아웃 액션
   logout: async () => {
-    // 로그아웃 시에는 isLoading을 true로 할 필요는 없어보임. 즉시 user를 null로 설정.
-    try {
-      await apiClient.post('/auth/logout');
-    } catch (error) {
-      console.error('Logout failed:', error);
-      // 실패해도 클라이언트에서는 로그아웃 처리
-    } finally {
-      set({ user: null, isLoading: false }); // isLoading은 false로 유지
-    }
+
+      localStorage.removeItem(ACCESS_TOKEN_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+      set({ user: null, isLoading: false, error: null }); // 로그아웃 시 에러 상태도 초기화
+
   },
 
   // 회원가입 액션
   signup: async (userData) => {
-    set({ isLoading: true }); // 요청 시작 시 로딩 상태 true
+    set({ isSigningUp: true, isLoading: true, error: null });
     try {
       const response = await apiClient.post('/auth/signup', userData);
       if (response.data && response.data.success) {
-        set({ isLoading: false }); // 성공 시 로딩 상태 false
-        return response.data;
+        // 회원가입 성공 시 바로 로그인시키지 않고, 로그인 페이지로 유도하거나 메시지만 표시할 수 있음
+        // 여기서는 반환된 사용자 정보로 user 상태를 업데이트하지 않음.
+        set({ isSigningUp: false, isLoading: false }); 
+        return response.data; // { success: true, message: "...", userId: "...", nickname: "..." }
       } else {
-        set({ isLoading: false });
-        throw new Error(response.data?.message || '회원가입에 실패했습니다. 입력 정보를 확인해주세요.');
+        const errorMessage = response.data?.message || '회원가입에 실패했습니다. 입력 정보를 확인해주세요.';
+        set({ isSigningUp: false, isLoading: false, error: errorMessage });
+        throw new Error(errorMessage);
       }
     } catch (error) {
-      set({ isLoading: false });
       const message = error.response?.data?.message || error.message || '회원가입 중 오류가 발생했습니다.';
+      set({ isSigningUp: false, isLoading: false, error: message });
       throw new Error(message);
     }
   },
 
-  // 현재 사용자 정보 확인 (세션 기반 인증 시 앱 시작 시 호출)
-  fetchCurrentUser: async () => {
-    // isLoading 초기값이 true이므로, 여기서 set({ isLoading: true }) 호출은 제거하거나 유지해도 됩니다.
-    // 만약 앱의 다른 부분에서 fetchCurrentUser를 직접 호출하며 로딩 상태 관리가 필요하다면 유지합니다.
-    // 여기서는 초기 로딩을 위한 것이므로, 이미 true 상태일 것이라 가정하고 진행합니다.
-    // 명확성을 위해 set({ isLoading: true });를 호출해줄 수 있습니다.
-    if (!get().isLoading) { // 이미 로딩 중이 아닐 때만 실행하도록 하여 중복 호출 방지
-        set({ isLoading: true });
+  // 현재 사용자 정보 확인
+  fetchCurrentUser: async (forceFetch = false) => {
+    // 이미 fetch 중이고 강제 fetch가 아니면 중복 실행 방지
+    if (get().isFetchingCurrentUser && !forceFetch) return;
+    
+    const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+    if (!token) {
+      set({ user: null, isLoading: false, isFetchingCurrentUser: false, error: null });
+      return;
     }
 
+    // fetchCurrentUser가 호출될 때마다 isFetchingCurrentUser를 true로 설정
+    set({ isLoading: true, isFetchingCurrentUser: true, error: null }); 
     try {
-      const response = await apiClient.get('/auth/me');
+      const response = await apiClient.get('/auth/me'); // Authorization 헤더는 apiClient 인터셉터에서 추가
       if (response.data && response.data.success) {
-        set({ user: { userId: response.data.userId, nickname: response.data.nickname }, isLoading: false });
+        set({ 
+          user: { 
+            userId: response.data.userId, 
+            nickname: response.data.nickname,
+            // 필요하다면 다른 사용자 정보도 추가 (예: createdAt)
+            // createdAt: response.data.createdAt 
+          }, 
+          isLoading: false, // 사용자 정보 로드 완료
+          isFetchingCurrentUser: false // fetch 작업 완료
+        });
       } else {
-        // API 응답은 성공했으나, success: false 인 경우 (예: 세션 만료 등)
-        set({ user: null, isLoading: false });
+        // API 응답은 성공했으나, success: false 인 경우 (예: 서버에서 유효하지 않은 토큰으로 판단)
+        set({ user: null, isLoading: false, isFetchingCurrentUser: false, error: response.data?.message || "사용자 정보를 가져오는데 실패했습니다." });
+        localStorage.removeItem(ACCESS_TOKEN_KEY); 
+        localStorage.removeItem(REFRESH_TOKEN_KEY);
       }
     } catch (error) {
-      // API 요청 자체가 실패한 경우 (네트워크 오류, 서버 오류 등)
-      set({ user: null, isLoading: false }); // 에러 발생 시 확실히 로딩 상태 종료
-      // 401 (미인증) 에러는 일반적인 상황일 수 있으므로 콘솔 에러에서 제외할 수 있습니다.
-      // 그 외의 에러는 개발 중 확인을 위해 로그를 남기는 것이 좋습니다.
-      if (error.response?.status !== 401) {
-        console.error('Failed to fetch current user:', error.message); // 더 간결한 에러 메시지
+      // API 요청 자체가 실패한 경우 (네트워크 오류, 401 등 서버 오류)
+      const message = error.response?.data?.message || error.message || '사용자 정보 조회 중 오류가 발생했습니다.';
+      set({ user: null, isLoading: false, isFetchingCurrentUser: false, error: message });
+      // 토큰 관련 오류(401 등) 발생 시 토큰 제거
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        localStorage.removeItem(ACCESS_TOKEN_KEY);
+        localStorage.removeItem(REFRESH_TOKEN_KEY);
+      }
+      
+      // 401은 apiClient에서 토큰 재발급 시도 후 최종 실패 시 넘어올 수 있음.
+      // 그 외의 에러는 개발 중 확인을 위해 로그를 남길 수 있음.
+      if (error.response?.status !== 401) { 
+        console.error('Failed to fetch current user:', message);
       }
     }
   },
+  
+  clearError: () => {
+    set({ error: null });
+  }
 }));
 
 export default useAuthStore; 

@@ -11,7 +11,8 @@ import useAuthStore from "@/lib/store/authStore";
 
 export default function SignupPage() {
     const router = useRouter();
-    const { user, isLoading, signup } = useAuthStore();
+    const { signup, isLoading, error: authError, clearError, isSigningUp } = useAuthStore();
+    
     const [formData, setFormData] = useState({
         nickname: '',
         username: '',
@@ -30,11 +31,13 @@ export default function SignupPage() {
     });
 
     useEffect(() => {
-        // 페이지 접근 시 리디렉션 로직 제거
-        // if (!isLoading && user) {
-        //     router.push('/');
-        // }
-    }, [user, isLoading, router]);
+        if (authError) {
+            setErrors(prev => ({ ...prev, form: authError }));
+        }
+        return () => {
+            clearError();
+        };
+    }, [authError, clearError]);
 
     const handleChange = (e) => {
         const { id, value, type, checked } = e.target;
@@ -47,6 +50,7 @@ export default function SignupPage() {
             [id]: '',
             form: ''
         }));
+        if (authError) clearError();
     };
 
     const validateForm = () => {
@@ -57,7 +61,7 @@ export default function SignupPage() {
             password: '',
             confirmPassword: '',
             termsAgreement: '',
-            form: ''
+            form: errors.form
         };
 
         newErrors.nickname = !formData.nickname.trim()
@@ -100,6 +104,8 @@ export default function SignupPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors(prev => ({ ...prev, form: '' }));
+        if (authError) clearError();
+
         if (validateForm()) {
             try {
                 const payload = {
@@ -110,16 +116,11 @@ export default function SignupPage() {
                 };
                 const result = await signup(payload);
                 
-                console.log('Signup result:', result);
                 alert(result.message || '회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.');
                 router.push('/login');
 
             } catch (error) {
-                console.error('Signup failed:', error);
-                setErrors(prev => ({
-                    ...prev,
-                    form: error.message || '회원가입 중 오류가 발생했습니다.'
-                }));
+                console.error('Signup submission failed:', error.message);
             }
         }
     };
@@ -186,7 +187,7 @@ export default function SignupPage() {
                 {errors.form && (
                     <p className="text-red-500 text-sm text-center -mt-3 mb-2">{errors.form}</p>
                 )}
-                <AuthButton text="회원가입" />
+                <AuthButton text={isSigningUp ? "회원가입 중..." : "회원가입"} />
             </form>
         </AuthLayout>
     );

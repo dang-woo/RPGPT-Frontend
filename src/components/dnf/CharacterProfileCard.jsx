@@ -45,15 +45,16 @@ export default function CharacterProfileCard({
             <Image
               src={imageUrl || fallbackImageUrlOnError}
               alt={characterName || '캐릭터 이미지'}
+              className="object-cover"
               fill
-              className="rounded-md object-contain shadow-md"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              priority
               onError={(e) => {
                 if (e.target.src !== fallbackImageUrlOnError) {
                   e.target.srcset = fallbackImageUrlOnError;
                   e.target.src = fallbackImageUrlOnError;
                 }
               }}
-              priority
             />
           </div>
         </div>

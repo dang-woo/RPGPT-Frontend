@@ -85,47 +85,36 @@ export default function CharacterDetailPage() {
 
     if (serverId && characterId) {
       const fetchAllCharacterData = async () => {
+        if (!serverId || !characterId) {
+          setError("서버 또는 캐릭터 ID가 유효하지 않습니다.");
+          setLoading(false);
+          return;
+        }
         setLoading(true);
         setError(null);
+        setCharacterDetails(null);
+
         try {
-          const detailResponse = await apiClient.get('/df/character', {
-            params: { server: serverId, characterId: characterId }
-          });
+          const response = await apiClient.get(`/df/character?server=${serverId}&characterId=${characterId}`);
+          const characterData = response.data;
 
-          let finalDetails = detailResponse.data;
-          const characterNameFromDetail = finalDetails?.characterName;
-
-          if (characterNameFromDetail) {
-            try {
-              const searchResponse = await apiClient.get('/df/search', {
-                params: { server: serverId, name: characterNameFromDetail, limit: 1 }
-              });
-
-              if (searchResponse && searchResponse.data && searchResponse.data.rows && searchResponse.data.rows.length > 0) {
-                const searchedInfo = searchResponse.data.rows[0];
-                finalDetails = {
-                  ...finalDetails,
-                  ...searchedInfo,
-                  imageUrl: searchedInfo.imageUrl || finalDetails.imageUrl,
-                };
-              } else {
-                console.warn(`/df/search API에서 ${characterNameFromDetail} (${serverId}) 에 대한 정보를 찾지 못했습니다.`);
-              }
-            } catch (searchError) {
-              console.error(`/df/search API 호출 오류 (${characterNameFromDetail}):`, searchError);
-            }
-          } else {
-            console.warn(`/df/character API 응답에서 characterName을 찾을 수 없습니다. (${serverId}/${characterId})`);
+          if (!characterData) {
+            setError("캐릭터 정보를 불러오지 못했습니다.");
+            setLoading(false);
+            return;
           }
-          
-          setCharacterDetails(finalDetails);
+
+          setCharacterDetails(characterData);
 
         } catch (err) {
-          console.error("캐릭터 정보 API 통합 호출 오류:", err);
-          setError(
-            "캐릭터 정보를 불러오는 중 오류가 발생했습니다. " +
-              (err.response?.data?.message || err.message)
-          );
+          console.error("캐릭터 상세 정보 조회 오류:", err);
+          let errorMessage = "캐릭터 정보를 불러오는 중 오류가 발생했습니다.";
+          if (err.response?.data?.message) {
+            errorMessage = err.response.data.message;
+          } else if (err.message) {
+            errorMessage = err.message;
+          }
+          setError(errorMessage);
         } finally {
           setLoading(false);
         }
@@ -345,7 +334,7 @@ export default function CharacterDetailPage() {
           {activeTab === 'equipment' && equipment && <EquipmentSection equipment={equipment} setItemInfo={setItemInfo} />}
           {activeTab === 'avatar' && avatar && <AvatarSection avatar={avatar} />}
           {activeTab === 'skill' && skill?.style && <SkillSection skillStyle={skill.style} />}
-          {activeTab === 'buffSkill' && skill?.buff && <BuffSkillSection buffSkillInfo={skill.buff} />}
+          {activeTab === 'buffSkill' && skill?.buff && <BuffSkillSection buffSkillInfo={skill.buff} fullEquipmentList={equipment} />}
           {activeTab === 'creature' && creature && <CreatureSection creature={creature} />}
           {activeTab === 'talisman' && talismans && <TalismanSection talismans={talismans} />}
           {activeTab === 'flag' && flag && <FlagSection flag={flag} />}
