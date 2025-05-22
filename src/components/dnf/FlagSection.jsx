@@ -13,7 +13,6 @@ export default function FlagSection({ flag }) {
     );
   }
 
-  const fallbackImageUrlOnError = "https://via.placeholder.com/60x60.png?text=No+Img";
   const flagNameClass = rarityColorMap[flag.itemRarity] || 'item-name-default';
 
   return (
@@ -23,7 +22,10 @@ export default function FlagSection({ flag }) {
         {flag.itemImage && (
           <div className="relative w-20 h-20 item-image-placeholder rounded-md flex-shrink-0">
             <Image 
-              // ... existing image props ...
+              src={flag.itemImage || "https://via.placeholder.com/80x80.png?text=No+Img"}
+              alt={flag.itemName || '휘장 이미지'}
+              fill
+              className="object-contain"
             />
           </div>
         )}

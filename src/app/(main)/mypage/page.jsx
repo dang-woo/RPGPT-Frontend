@@ -494,7 +494,7 @@ export default function MyPage() {
       {isChatOpen && (
         <div 
           ref={chatModalRef}
-          className="fixed bg-white dark:bg-neutral-800 rounded-lg shadow-xl overflow-hidden flex flex-col z-40 \
+          className="fixed chat-modal-main-container rounded-lg shadow-xl overflow-hidden flex flex-col z-40 \
                      bottom-20 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm h-[70vh] max-h-[calc(100vh-10rem)] \
                      md:inset-auto md:right-8 md:bottom-24 md:translate-x-0 md:translate-y-0 md:w-full md:max-w-md md:h-[80vh] md:max-h-[700px]"
         >

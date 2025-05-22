@@ -48,7 +48,6 @@ export default function BuffSkillSection({ buffSkillInfo }) {
   }
 
   const { skillInfo, equipment, avatar, creature } = buffSkillInfo;
-  const fallbackImageUrlOnError = "https://via.placeholder.com/40x40.png?text=No+Img";
 
   // skillInfo.option.desc의 플레이스홀더를 실제 값으로 대체
   let skillDesc = skillInfo.option?.desc || "";
@@ -87,7 +86,11 @@ export default function BuffSkillSection({ buffSkillInfo }) {
                     {item.itemImage && (
                       <div className="relative w-10 h-10 item-image-placeholder rounded">
                         <Image 
-                          // ... existing image props ...
+                          src={item.itemImage}
+                          alt={item.itemName || '장비 아이콘'}
+                          fill
+                          className="object-contain"
+                          onError={(e) => { e.target.src = 'https://via.placeholder.com/32x32.png?text=X'; }}
                         />
                       </div>
                     )}

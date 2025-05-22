@@ -5,8 +5,6 @@ import Image from 'next/image';
 export default function CharacterProfileCard({
   characterDetails,
   currentServerName,
-  characterPrimaryImageUrl,
-  fallbackImageUrl,
 }) {
   if (!characterDetails) return null;
 
@@ -19,7 +17,6 @@ export default function CharacterProfileCard({
     level,
     jobGrowName,
     serverId,
-    characterId,
     imageUrl,
   } = characterDetails;
 

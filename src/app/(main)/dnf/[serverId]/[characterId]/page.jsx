@@ -2,12 +2,10 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import axios from "axios";
 import apiClient from "@/lib/apiClient";
 import useAuthStore from "@/lib/store/authStore";
 import CharacterProfileCard from "@/components/dnf/CharacterProfileCard";
 import EquipmentSection from "@/components/dnf/EquipmentSection";
-import SetItemEffectSection from "@/components/dnf/SetItemEffectSection";
 import AvatarSection from "@/components/dnf/AvatarSection";
 import CreatureSection from "@/components/dnf/CreatureSection";
 import FlagSection from "@/components/dnf/FlagSection";
@@ -16,7 +14,7 @@ import SkillSection from "@/components/dnf/SkillSection";
 import BuffSkillSection from "@/components/dnf/BuffSkillSection";
 import FloatingChatButton from "@/components/chat/FloatingChatButton";
 import ChatInterface from "@/components/chat/ChatInterface";
-import { BookmarkPlus, CheckCircle, XCircle, AlertTriangle, Loader2 } from 'lucide-react';
+import { BookmarkPlus, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
 
 // 서버 ID를 한글 이름으로 매핑 (필요에 따라 추가/수정)
 const serverNameMap = {
@@ -64,13 +62,10 @@ export default function CharacterDetailPage() {
   });
 
   useEffect(() => {
-    let initialCharacterName = null;
     const initialDetailsQuery = searchParams.get('details');
     if (initialDetailsQuery) {
       try {
         const parsedDetails = JSON.parse(initialDetailsQuery);
-        // initialCharacterName = parsedDetails.characterName; // 더 이상 초기 이름에 의존하지 않음
-        // 초기 상태 설정은 유지하되, API 호출 후 덮어쓰여질 것임
         setCharacterDetails(prevDetails => ({
              ...prevDetails, 
              characterName: parsedDetails.characterName,
@@ -79,7 +74,6 @@ export default function CharacterDetailPage() {
              serverId: parsedDetails.serverId,
              characterId: parsedDetails.characterId,
              imageUrl: parsedDetails.imageUrl,
-             // adventureName 등 다른 주요 기본 정보도 여기서 초기 설정 가능
              adventureName: parsedDetails.adventureName, 
              guildName: parsedDetails.guildName,
              fame: parsedDetails.fame,
@@ -94,7 +88,6 @@ export default function CharacterDetailPage() {
         setLoading(true);
         setError(null);
         try {
-          // 1. /api/df/character API 호출하여 기본 정보 및 characterName 가져오기
           const detailResponse = await apiClient.get('/df/character', {
             params: { server: serverId, characterId: characterId }
           });
@@ -103,7 +96,6 @@ export default function CharacterDetailPage() {
           const characterNameFromDetail = finalDetails?.characterName;
 
           if (characterNameFromDetail) {
-            // 2. 얻어온 characterName으로 /api/df/search API 호출
             try {
               const searchResponse = await apiClient.get('/df/search', {
                 params: { server: serverId, name: characterNameFromDetail, limit: 1 }
@@ -111,7 +103,6 @@ export default function CharacterDetailPage() {
 
               if (searchResponse && searchResponse.data && searchResponse.data.rows && searchResponse.data.rows.length > 0) {
                 const searchedInfo = searchResponse.data.rows[0];
-                // 검색 결과를 상세 정보에 병합 (imageUrl 등)
                 finalDetails = {
                   ...finalDetails,
                   ...searchedInfo,
@@ -121,15 +112,10 @@ export default function CharacterDetailPage() {
                 console.warn(`/df/search API에서 ${characterNameFromDetail} (${serverId}) 에 대한 정보를 찾지 못했습니다.`);
               }
             } catch (searchError) {
-              // 검색 API 호출 실패는 전체를 중단시키지 않고, 콘솔에 오류만 기록할 수 있습니다.
-              // 또는 사용자에게 부분적인 정보만 로드되었음을 알릴 수도 있습니다.
               console.error(`/df/search API 호출 오류 (${characterNameFromDetail}):`, searchError);
-              // 필요하다면 setError를 통해 사용자에게 알릴 수 있지만, 여기서는 일단 콘솔 로그만 남깁니다.
             }
           } else {
             console.warn(`/df/character API 응답에서 characterName을 찾을 수 없습니다. (${serverId}/${characterId})`);
-            // characterName이 없으면 검색 API를 호출할 수 없으므로, 여기서 추가적인 에러 처리를 할 수 있습니다.
-            // 예를 들어, setError("캐릭터 이름을 가져올 수 없어 추가 정보를 로드할 수 없습니다.");
           }
           
           setCharacterDetails(finalDetails);
@@ -276,7 +262,6 @@ export default function CharacterDetailPage() {
     const characterPrimaryImageUrl = characterDetails.imageUrl || `https://img-api.neople.co.kr/df/servers/${characterDetails.serverId}/characters/${characterDetails.characterId}?zoom=3`;
     const fallbackImageUrl = "https://via.placeholder.com/300x400.png?text=Image+Not+Found";
 
-    // 사용자 등록 모험단 이름 (useAuthStore의 user 객체에서 가져옴, 실제 필드명 확인 필요)
     const userRegisteredAdventureName = user?.adventureName;
 
     return (
@@ -289,20 +274,15 @@ export default function CharacterDetailPage() {
             fallbackImageUrl={fallbackImageUrl}
           />
           {!authLoading && user && (
-            // 버튼 표시 로직 시작
             (() => {
-              // 현재 조회 중인 캐릭터의 모험단 이름
               const viewingCharacterAdventureName = characterDetails?.adventureName;
 
-              // 조건 1: 사용자가 모험단을 등록했고, 현재 캐릭터의 모험단과 다른 경우 버튼 숨김
-              // (단, 현재 캐릭터의 모험단 정보가 있어야 비교 가능)
               if (userRegisteredAdventureName && 
                   viewingCharacterAdventureName && 
                   userRegisteredAdventureName !== viewingCharacterAdventureName) {
-                return null; // 버튼을 렌더링하지 않음
+                return null;
               }
 
-              // 조건 2: 그 외의 경우 (사용자가 모험단 등록 안 했거나, 모험단이 같거나, 캐릭터 모험단 정보 로딩 중이거나 없는 경우) 버튼 표시
               return (
                 <div className="absolute top-4 right-4 flex flex-col items-end space-y-2">
                   <button
@@ -332,7 +312,6 @@ export default function CharacterDetailPage() {
                 </div>
               );
             })()
-            // 버튼 표시 로직 끝
           )}
         </div>
 
@@ -345,8 +324,8 @@ export default function CharacterDetailPage() {
                 className={(
                   'whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm transition-colors duration-150 ' +
                   (activeTab === tab.id
-                    ? 'border-[var(--link-accent-color)] text-[var(--link-accent-color)]'
-                    : 'border-transparent text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200 hover:border-neutral-400 dark:hover:border-neutral-500')
+                    ? 'border-[var(--main-button-bg)] text-[var(--main-button-bg)]'
+                    : 'border-transparent text-[var(--nav-button-text)] hover:text-[var(--nav-button-hover-text)] hover:border-[var(--nav-button-hover-text)]')
                 )}
                 aria-current={activeTab === tab.id ? 'page' : undefined}
               >
@@ -390,7 +369,7 @@ export default function CharacterDetailPage() {
       {isChatOpen && (
         <div 
           ref={chatModalRef}
-          className="fixed bg-white dark:bg-neutral-800 rounded-lg shadow-xl overflow-hidden flex flex-col z-40 \
+          className="fixed chat-modal-main-container rounded-lg shadow-xl overflow-hidden flex flex-col z-40 \
                      bottom-20 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm h-[70vh] max-h-[calc(100vh-10rem)] \
                      md:inset-auto md:right-8 md:bottom-24 md:translate-x-0 md:translate-y-0 md:w-full md:max-w-md md:h-[80vh] md:max-h-[700px]"
         >

@@ -45,7 +45,7 @@ export default function MainPage() {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(searches));
   };
 
-  const addSearchToHistory = (searches) => {
+  const addSearchToHistory = () => {
     const newSearchItem = { serverId: serverId, serverName: serverOptions.find(s => s.id === serverId)?.name || serverId, characterName: characterName, timestamp: new Date().getTime() };
 
     let updatedSearches = recentSearches.filter(
@@ -94,7 +94,7 @@ export default function MainPage() {
         setSearchResults([]);
       } else {
         setSearchResults(rows);
-        addSearchToHistory(rows);
+        addSearchToHistory();
       }
     } catch (err) {
       setError("검색 중 오류가 발생했습니다: " + (err.response?.data?.error || err.message));

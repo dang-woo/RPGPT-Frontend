@@ -1,16 +1,7 @@
 "use client";
 
 import React from 'react';
-
-const SkillItem = ({ skill }) => (
-  <li className="py-1.5 px-2.5 bg-neutral-100 dark:bg-neutral-700 rounded-md text-sm shadow-sm border border-neutral-200 dark:border-neutral-600">
-    <span className="font-medium text-neutral-800 dark:text-neutral-100">{skill.name}</span>
-    <span className="text-xs text-neutral-500 dark:text-neutral-400 ml-1.5">
-      (Lv.{skill.level || '-'})
-      {skill.requiredLevel && <span className="ml-1"> / 필요 Lv.{skill.requiredLevel}</span>}
-    </span>
-  </li>
-);
+import { rarityColorMap } from "@/utils/dnfUtils";
 
 export default function SkillSection({ skillStyle }) {
   if (!skillStyle || !skillStyle.active || skillStyle.active.length === 0) {

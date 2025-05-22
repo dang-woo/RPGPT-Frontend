@@ -75,6 +75,8 @@
   --item-image-placeholder-bg: var(--skeleton-bg); /* 기존 스켈레톤 배경 활용 */
   --item-entry-bg-nested: #e9ecef; /* 라이트모드 기본 (더 밝은 회색) */
   --input-focus-ring: #3b82f6; /* 포커스 링 색상 (라이트 모드 기본) */
+  --chat-modal-bg: #1f2937; /* 채팅 모달 배경 (다크 모드 기본) */
+  --chat-modal-border: #374151; /* 채팅 모달 테두리 (다크 모드 기본) */
 }
 
 /* HTML 요소 스타일 */
@@ -190,6 +192,8 @@ body.light {
   --item-image-placeholder-bg: var(--skeleton-bg);
   --item-entry-bg-nested: #f8f9fa; /* 예: Tailwind gray-50보다 더 밝은 회색 */
   --input-focus-ring: #3b82f6; /* 포커스 링 색상 (라이트 모드) */
+  --chat-modal-bg: #ffffff; /* 채팅 모달 배경 (라이트 모드) */
+  --chat-modal-border: #e5e7eb; /* 채팅 모달 테두리 (라이트 모드) */
 }
 
 /* 다크 모드 스타일 */
@@ -713,4 +717,11 @@ body.dark {
 
 .chat-modal-close-button:hover {
   color: var(--chat-modal-close-hover-text);
+}
+
+/* 추가: 채팅 모달 메인 컨테이너 스타일 */
+.chat-modal-main-container {
+  background-color: var(--chat-modal-bg);
+  /* border: 1px solid var(--chat-modal-border); /* 필요시 테두리 추가 */
+  /* 기존 Tailwind 그림자, 둥근 모서리 등은 JSX에서 클래스로 유지 */
 }

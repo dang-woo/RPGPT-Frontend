@@ -12,7 +12,6 @@ export default function TalismanSection({ talismans }) {
       </div>
     );
   }
-  const fallbackImageUrlOnError = "https://via.placeholder.com/40x40.png?text=No+Img";
 
   return (
     <div className="section-box">
@@ -26,10 +25,14 @@ export default function TalismanSection({ talismans }) {
               {talisman.talisman && (
                 <div className="flex items-center gap-3 mb-2">
                   {talisman.talisman.itemImage && (
-                     <div className="relative w-12 h-12 item-image-placeholder rounded-md flex-shrink-0">
-                        <Image 
-                          // ... existing image props ...
-                        />
+                    <div className="relative w-10 h-10 item-image-placeholder rounded-md flex-shrink-0">
+                      <Image 
+                        src={talisman.talisman.itemImage}
+                        alt={talisman.talisman.itemName || '탈리스만 이미지'}
+                        fill 
+                        className="object-contain"
+                        onError={(e) => { e.target.src = 'https://via.placeholder.com/40x40.png?text=X'; }}
+                      />
                     </div>
                   )}
                   <div className="flex-grow">
