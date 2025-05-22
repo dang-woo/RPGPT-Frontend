@@ -5,7 +5,7 @@ const ACCESS_TOKEN_KEY = 'accessToken';
 const REFRESH_TOKEN_KEY = 'refreshToken'; // 백엔드가 refreshToken을 반환하고 사용한다면 필요
 
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://43.201.55.91:8080/api',
   headers: {
     'Content-Type': 'application/json',
   },
