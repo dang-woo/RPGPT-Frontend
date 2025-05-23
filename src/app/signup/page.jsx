@@ -19,8 +19,7 @@ export default function SignupPage() {
         username: '',
         password: '',
         confirmPassword: '',
-        email: '',
-        termsAgreement: false
+        email: ''
     });
 
     const [errors, setErrors] = useState({
@@ -30,7 +29,6 @@ export default function SignupPage() {
         confirmPassword: '',
         email: '',
         verificationCode: '',
-        termsAgreement: '',
         form: ''
     });
 
@@ -162,7 +160,6 @@ export default function SignupPage() {
             confirmPassword: '',
             email: '',
             verificationCode: '',
-            termsAgreement: '',
             form: errors.form
         };
 
@@ -182,8 +179,8 @@ export default function SignupPage() {
 
         newErrors.password = !formData.password
             ? '비밀번호를 입력해주세요'
-            : formData.password.length < 6
-            ? '비밀번호는 6자 이상이어야 합니다'
+            : formData.password.length < 4
+            ? '비밀번호는 4자 이상이어야 합니다'
             : '';
         if (newErrors.password) isValid = false;
 
@@ -211,11 +208,6 @@ export default function SignupPage() {
                 newErrors.verificationCode = '인증 코드를 입력해주세요.';
             }
         }
-
-        newErrors.termsAgreement = !formData.termsAgreement
-            ? '이용약관에 동의해주세요.'
-            : '';
-        if (newErrors.termsAgreement) isValid = false;
 
         setErrors(newErrors);
         return isValid;
@@ -356,23 +348,6 @@ export default function SignupPage() {
                     placeholder="비밀번호를 다시 입력하세요"
                     error={errors.confirmPassword}
                 />
-                <div className="flex items-center justify-between text-xs">
-                    <label htmlFor="termsAgreement" className="flex items-center cursor-pointer">
-                        <input 
-                            type="checkbox" 
-                            id="termsAgreement"
-                            checked={formData.termsAgreement}
-                            onChange={handleChange}
-                            className="mr-2 h-4 w-4 text-[var(--main-button-bg)] focus:ring-[var(--main-button-bg)] border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-offset-gray-800"
-                        /> 
-                        <span className="text-gray-400 hover:text-[var(--foreground)]">
-                            이용약관에 동의합니다. (필수)
-                        </span>
-                    </label>
-                </div>
-                {errors.termsAgreement && (
-                    <p className="text-red-500 text-xs mt-1 mb-2">{errors.termsAgreement}</p>
-                )}
                 {errors.form && (
                     <p className="text-red-500 text-sm text-center -mt-3 mb-2">{errors.form}</p>
                 )}

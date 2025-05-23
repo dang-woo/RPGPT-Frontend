@@ -46,10 +46,10 @@ const nextConfig = {
       },
     ];
   },
-  webpack: (config) => {
-    // ... existing code ...
-    return config;
-  },
+  // webpack: (config) => {
+  //   // ... existing code ...
+  //   return config;
+  // },
 }
 
 module.exports = nextConfig;

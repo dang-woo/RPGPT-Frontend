@@ -90,11 +90,6 @@ export default function LoginPage() {
                     onChange={handleChange}
                     placeholder="비밀번호를 입력하세요"
                 />
-                 <div className="flex items-center justify-end text-xs">
-                    <Link href="#" className="font-medium text-[var(--link-accent-color)] hover:text-[var(--foreground)]">
-                        아이디/비밀번호 찾기
-                    </Link>
-                </div>
                 {formError && (
                     <p className="text-red-500 text-sm text-center -mt-3 mb-2">{formError}</p>
                 )}
