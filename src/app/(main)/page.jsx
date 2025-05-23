@@ -82,6 +82,7 @@ export default function MainPage() {
     setError(null);
 
     try {
+      console.log("apiClient baseURL:", apiClient.defaults.baseURL); // apiClient의 baseURL 확인 코드 추가
       // const response = await axios.get("http://localhost:8080/api/df/search", { // 기존 코드 주석 처리
       const response = await apiClient.get("/df/search", { // apiClient 사용 및 상대 경로로 변경
         params: {
